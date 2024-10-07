@@ -1,13 +1,16 @@
 import React from 'react'
 import Header from './components/ui/header'
-import Map from './components/map'
+import CustomMap from './components/custom-map'
+import { APIProvider } from '@vis.gl/react-google-maps'
 
 const App = () => {
   return (
-    <div className={"container flex flex-col"}>
-      <Header />
-      <Map />
-    </div>
+    <APIProvider apiKey={String(process.env.REACT_APP_GOOGLE_MAPS_API_KEY)}>
+      <div className={"container flex flex-col"}>
+        <Header />
+        <CustomMap />
+      </div>
+    </APIProvider>
   )
 }
 
