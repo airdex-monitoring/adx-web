@@ -11,7 +11,18 @@ module.exports = {
         lg: '984px',
       },
     },
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ['Inter', 'sans-serif'],
+      },
+      colors: {
+        white: "#FFFFFF",
+        black: "#353535",
+        green: "#3C6E71",
+        gray: "#D9D9D9",
+        blue: "#284B63",
+      }
+    },
   },
   plugins: [],
 }

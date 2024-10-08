@@ -9,12 +9,12 @@
 }
 
 @layer base {
-
+  body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f3f4f6;
+  }
 }
 
-@layer components {
-  
-}
+@layer components {}
 
-@layer utilities {
-}
+@layer utilities {}
