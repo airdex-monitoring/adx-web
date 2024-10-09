@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - feature/** # to be removed on merge
 
 jobs:
   publish:
@@ -34,16 +33,14 @@ jobs:
     name: Deploy to production
     needs: publish
     runs-on: [self-hosted]
-    env:
-      working-directory: /root/deploy
 
     steps:
       - name: Login to ghcr
-        run: cat ${{env.working-directory}}/ghcr_crpat.txt | docker login ghcr.io -u airdex-monitoring --password-stdin
+        run: cat ${{secrets.WORKING_DIRECTORY}}/ghcr_crpat.txt | docker login ghcr.io -u airdex-monitoring --password-stdin
 
       - name: Pull image from ghcr
         run: docker pull ghcr.io/airdex-monitoring/adx-web:latest
 
       - name: Deploy docker stack
-        working-directory: ${{env.working-directory}}/adx-web
+        working-directory: ${{secrets.WORKING_DIRECTORY}}/adx-web
         run: docker stack deploy -c docker-compose-webstack.yml adx-web
