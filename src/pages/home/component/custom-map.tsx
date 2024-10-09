@@ -22,7 +22,7 @@ const CustomMap: React.FC = () => {
         }
     }, []);
 
-    return currentPosition ? (
+    return (
         <Map
             style={{ width: '100%', height: "500px" }}
             gestureHandling={'greedy'}
@@ -35,16 +35,16 @@ const CustomMap: React.FC = () => {
         >
             <Circle
                 radius={50}
-                center={currentPosition}
+                center={currentPosition || 0}
                 strokeColor={'#0c4cb3'}
                 strokeOpacity={1}
                 strokeWeight={2}
                 fillColor={'#3b82f6'}
                 fillOpacity={0.3}
             />
-            <Marker position={currentPosition} />
+            <Marker position={currentPosition || 0} />
         </Map>
-    ) : <>Loading ....</>
+    )
 }
 
 export default CustomMap
