@@ -22,7 +22,7 @@ const CustomMap: React.FC = () => {
         }
     }, []);
 
-    return (
+    return currentPosition ? (
         <Map
             style={{ width: '100%', height: "500px" }}
             gestureHandling={'greedy'}
@@ -44,7 +44,7 @@ const CustomMap: React.FC = () => {
             />
             <Marker position={currentPosition} />
         </Map>
-    )
+    ) : <>Loading ....</>
 }
 
 export default CustomMap
