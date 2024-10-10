@@ -1,31 +1,31 @@
 export interface IAirSensorSignal {
-    id: number;
-    createDate: Date;
+  id: number;
+  createDate: Date;
 
-    lat: number;
-    lng: number;
+  lat: number;
+  lon: number;
 
-    pm1_0: number;
-    pm2_5: number;
-    pm10: number;
+  pm1_0: number;
+  pm2_5: number;
+  pm10: number;
 
-    aqi: number;
-    aqiLevel: AqiLevel;
+  aqi: number;
+  aqiLevel: AqiLevel;
 }
 
 export interface IAirSensorSignalAcceptRequest {
-    lat: number;
-    lng: number;
-    pm1_0: number;
-    pm2_5: number;
-    pm10: number;
+  lat: number;
+  lon: number;
+  pm1_0: number;
+  pm2_5: number;
+  pm10: number;
 }
 
 export enum AqiLevel {
-    "GOOD",
-    "MODERATE",
-    "UNHEALTHY_FOR_SENSITIVE_GROUP",
-    "UNHEALTHY",
-    "VERY_UNHEALTHY",
-    "HAZARDOUS",
+  "GOOD",
+  "MODERATE",
+  "UNHEALTHY_FOR_SENSITIVE_GROUP",
+  "UNHEALTHY",
+  "VERY_UNHEALTHY",
+  "HAZARDOUS",
 }
