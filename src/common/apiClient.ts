@@ -6,7 +6,7 @@ axios.defaults.timeout = 300000;
 
 export const apiClient = {
     airSensor: {
-        findAll: async (): Promise<AxiosResponse<IAirSensorSignal>> => {
+        findAll: async (): Promise<AxiosResponse<IAirSensorSignal[]>> => {
             return await axios.get('/air-sensors');
         },
         save: async (data: IAirSensorSignalAcceptRequest): Promise<AxiosResponse<IAirSensorSignal>> => {
