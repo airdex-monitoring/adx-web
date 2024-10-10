@@ -43,4 +43,7 @@ jobs:
 
       - name: Deploy docker stack
         working-directory: ${{secrets.WORKING_DIRECTORY}}/adx-web
+        env:
+          REACT_APP_BACKEND_URL: ${{secrets.ADX_BACKEND_URL}}
+          REACT_APP_GOOGLE_MAPS_API_KEY: ${{secrets.ADX_GOOGLE_MAPS_API_KEY}}
         run: docker stack deploy -c docker-compose-webstack.yml --with-registry-auth adx-web
