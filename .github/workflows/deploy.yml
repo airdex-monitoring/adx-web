@@ -43,4 +43,4 @@ jobs:
 
       - name: Deploy docker stack
         working-directory: ${{secrets.WORKING_DIRECTORY}}/adx-web
-        run: docker stack deploy -c docker-compose-webstack.yml adx-web
+        run: docker stack deploy -c docker-compose-webstack.yml --with-registry-auth adx-web
