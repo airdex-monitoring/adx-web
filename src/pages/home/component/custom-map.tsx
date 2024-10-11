@@ -8,45 +8,26 @@ interface CustomMapProps {
 }
 
 const CustomMap = ({ airSensorData }: CustomMapProps) => {
-    const [currentPosition, setCurrentPosition] = React.useState<any>(null);
-
-    React.useEffect(() => {
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    setCurrentPosition({ lat: latitude, lng: longitude });
-                },
-                (error) => {
-                    console.error("Error getting location:", error);
-                }
-            );
-        }
-        else {
-            console.error("Geolocation is not supported by this browser.");
-        }
-    }, []);
-
     return (
         <Map
             style={{ width: '100%', height: "500px" }}
             gestureHandling={'greedy'}
             disableDefaultUI={true}
             defaultCenter={{
-                lat: currentPosition?.lat || 53,
-                lng: currentPosition?.lng || 74
+                lat: localStorage.getItem("currentPosition") ? JSON.parse(localStorage.getItem("currentPosition") || "").lat : 0,
+                lng: localStorage.getItem("currentPosition") ? JSON.parse(localStorage.getItem("currentPosition") || "").lng : 0,
             }}
             defaultZoom={15}
         >
             {airSensorData?.filter(v => v.lat !== null && v.lon !== null).map((sensor, index) => (
                 <SensorCircle sensor={sensor} key={index} />
             ))}
-            {currentPosition && (
+            {localStorage.getItem("currentPosition") && (
                 <Marker
                     key={"current"}
                     position={{
-                        lat: currentPosition.lat,
-                        lng: currentPosition.lng
+                        lat: localStorage.getItem("currentPosition") ? JSON.parse(localStorage.getItem("currentPosition") || "").lat : 0,
+                        lng: localStorage.getItem("currentPosition") ? JSON.parse(localStorage.getItem("currentPosition") || "").lng : 0,
                     }}
                 />
             )}
