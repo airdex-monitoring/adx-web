@@ -53,16 +53,16 @@ const SensorCircle = ({ sensor }: SensorCircleProps) => {
                 fillOpacity={0.1}
             />
             {infowindowOpen && selectedSensor && selectedSensor.id === sensor.id && (
-                <InfoWindow position={{
-                    lat: Number(selectedSensor.lat) + 0.0001,
-                    lng: Number(selectedSensor.lon) + 0.0001,
-                }}
+                <InfoWindow
+                    position={{
+                        lat: Number(selectedSensor.lat) + 0.0001,
+                        lng: Number(selectedSensor.lon) + 0.0001,
+                    }}
+                    pixelOffset={[0, -30]}
                     headerContent={
                         <div className="text-center text-white"
                             style={{
                                 backgroundColor: handleQualityColor(sensor.aqiLevel),
-                                padding: "5px",
-                                borderRadius: "5px",
                             }}
                         >
                             <p className="text-lg font-bold">{sensor.aqi}</p>

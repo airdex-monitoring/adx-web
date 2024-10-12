@@ -8,6 +8,15 @@
   box-sizing: border-box;
 }
 
+/* Google Maps info window */
+.gm-style-iw-ch{
+  padding: 0;
+}
+
+.gm-style-iw.gm-style-iw-c {
+  padding: 0;
+}
+
 @layer base {
   body {
     font-family: 'Inter', sans-serif;
