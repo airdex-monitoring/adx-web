@@ -2,7 +2,7 @@ import React from 'react'
 import { AqiLevel, IAirSensorSignal } from '../../../interfaces/IAirSensorSignal'
 import { Circle } from './circle';
 import { InfoWindow } from '@vis.gl/react-google-maps';
-import { getFullDateWithTime } from '../../../common/getFullDate';
+import { format } from 'date-fns';
 
 interface SensorCircleProps {
     sensor: IAirSensorSignal;
@@ -42,7 +42,7 @@ const SensorCircle = ({ sensor }: SensorCircleProps) => {
     return (
         <React.Fragment key={sensor.id}>
             <Circle
-                radius={100}
+                radius={200}
                 center={{
                     lat: Number(sensor.lat) + 0.0001,
                     lng: Number(sensor.lon) + 0.0001,
@@ -97,7 +97,10 @@ const SensorCircle = ({ sensor }: SensorCircleProps) => {
                                 <td className="p-2" colSpan={2}>
                                     <p className="text-left text-md font-bold">Obtained at</p>
                                 </td>
-                                <td className='text-left font-light whitespace-pre'>{getFullDateWithTime(sensor.createDate.toString())}</td>
+                                <td className='text-left font-light whitespace-pre-line'>
+                                    {`${format(sensor.createDate, "dd-MM-yyyy")}
+                                    ${format(sensor.createDate, "HH:mm:ss")}`}
+                                </td>
                             </tr>
                         </tfoot>
                     </table>

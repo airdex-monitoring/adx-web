@@ -1,4 +1,4 @@
-import { AdvancedMarker, Map, MapCameraChangedEvent, MapCameraProps, Marker } from '@vis.gl/react-google-maps'
+import { Map, MapCameraChangedEvent, MapCameraProps, Marker, RenderingType } from '@vis.gl/react-google-maps'
 import React from 'react'
 import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
 import SensorCircle from './sensor-circle';
@@ -12,11 +12,10 @@ const INITIAL_CAMERA = {
         lat: localStorage.getItem("currentPosition") ? JSON.parse(localStorage.getItem("currentPosition") || "").lat : 0,
         lng: localStorage.getItem("currentPosition") ? JSON.parse(localStorage.getItem("currentPosition") || "").lng : 0,
     },
-    zoom: 14
+    zoom: 14,
 };
 
 const CustomMap = ({ airSensorData }: CustomMapProps) => {
-
     const [cameraProps, setCameraProps] =
         React.useState<MapCameraProps>(INITIAL_CAMERA);
     const handleCameraChange = React.useCallback((ev: MapCameraChangedEvent) =>
@@ -28,6 +27,7 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
             style={{ width: '100%', height: "500px" }}
             gestureHandling={'greedy'}
             disableDefaultUI={true}
+            renderingType={RenderingType.VECTOR}
             {...cameraProps}
             onCameraChanged={handleCameraChange}
         >
@@ -38,8 +38,8 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
                 <Marker
                     key="currentPosition"
                     position={{
-                        lat: JSON.parse(localStorage.getItem("currentPosition") || "").lat,
-                        lng: JSON.parse(localStorage.getItem("currentPosition") || "").lng
+                        lat: localStorage.getItem("currentPosition") ? JSON.parse(localStorage.getItem("currentPosition") || "").lat : 0,
+                        lng: localStorage.getItem("currentPosition") ? JSON.parse(localStorage.getItem("currentPosition") || "").lng : 0,
                     }}
                 />
             )}
