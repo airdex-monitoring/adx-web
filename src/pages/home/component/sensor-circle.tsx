@@ -48,9 +48,9 @@ const SensorCircle = ({ sensor }: SensorCircleProps) => {
                     lng: Number(sensor.lon) + 0.0001,
                 }}
                 onClick={() => handleCircleClick(sensor)}
-                strokeOpacity={1}
+                strokeOpacity={0.5}
                 fillColor={handleQualityColor(sensor.aqiLevel)}
-                fillOpacity={0.1}
+                fillOpacity={0.5}
             />
             {infowindowOpen && selectedSensor && selectedSensor.id === sensor.id && (
                 <InfoWindow
@@ -65,7 +65,7 @@ const SensorCircle = ({ sensor }: SensorCircleProps) => {
                                 backgroundColor: handleQualityColor(sensor.aqiLevel),
                             }}
                         >
-                            <p className="text-lg font-bold">{sensor.aqi}</p>
+                            <p className="text-lg font-bold">{`${sensor.aqi} / 100`}</p>
                             <p className="text-sm font-light">{sensor.aqiLevel}</p>
                         </div>
                     }
@@ -95,7 +95,7 @@ const SensorCircle = ({ sensor }: SensorCircleProps) => {
                         <tfoot>
                             <tr>
                                 <td className="p-2" colSpan={2}>
-                                    <p className="text-left text-md font-bold">Last updated</p>
+                                    <p className="text-left text-md font-bold">Obtained at</p>
                                 </td>
                                 <td className='text-left font-light whitespace-pre'>{getFullDateWithTime(sensor.createDate.toString())}</td>
                             </tr>
