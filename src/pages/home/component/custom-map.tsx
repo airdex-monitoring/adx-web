@@ -1,4 +1,4 @@
-import { InfoWindow, Map, MapCameraChangedEvent, MapCameraProps, Marker, RenderingType } from '@vis.gl/react-google-maps'
+import { InfoWindow, Map, MapCameraChangedEvent, MapCameraProps, Marker } from '@vis.gl/react-google-maps'
 import React from 'react'
 import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
 import { format } from 'date-fns';
