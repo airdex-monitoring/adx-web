@@ -7,8 +7,7 @@ import {
 axios.defaults.timeout = 300000;
 axios.defaults.withCredentials = false;
 
-const baseURL =
-  process.env.REACT_APP_API_URL || "http://localhost:8080/api/v1/";
+const baseURL = process.env.REACT_APP_BACKEND_URL;
 
 export const apiClient = {
   airSensor: {
