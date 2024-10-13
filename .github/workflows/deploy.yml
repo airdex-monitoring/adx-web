@@ -27,9 +27,9 @@ jobs:
       - name: 'Build and push to ghcr'
         run: |
           docker build \
-            --build-arg REACT_APP_BACKEND_URL=${{secrets.ADX_BACKEND_URL}} . \
+            --build-arg REACT_APP_BACKEND_URL=${{secrets.ADX_BACKEND_URL}} \
             --build-arg REACT_APP_GOOGLE_MAPS_API_KEY=${{secrets.ADX_GOOGLE_MAPS_API_KEY}} \
-            --tag ghcr.io/airdex-monitoring/adx-web:latest
+            --tag ghcr.io/airdex-monitoring/adx-web:latest .
           docker push ghcr.io/airdex-monitoring/adx-web:latest
 
   deploy:
