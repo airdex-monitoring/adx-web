@@ -4,20 +4,21 @@ import {
   IAirSensorSignalAcceptRequest,
 } from "../interfaces/IAirSensorSignal";
 
-axios.defaults.timeout = 300000;
-axios.defaults.withCredentials = false;
-
-const baseURL = process.env.REACT_APP_BACKEND_URL;
+const axiosApi = axios.create({
+  timeout: 300000,
+  withCredentials: false,
+  baseURL: process.env.REACT_APP_BACKEND_URL
+})
 
 export const apiClient = {
   airSensor: {
     findAll: async (): Promise<AxiosResponse<IAirSensorSignal[]>> => {
-      return await axios.get(`${baseURL}/air-signals`);
+      return await axiosApi.get(`/air-signals`);
     },
     save: async (
       data: IAirSensorSignalAcceptRequest
     ): Promise<AxiosResponse<IAirSensorSignal>> => {
-      return await axios.post(`${baseURL}/air-signals`, data);
+      return await axiosApi.post(`/air-signals`, data);
     },
   },
 };
