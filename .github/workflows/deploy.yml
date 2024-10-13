@@ -43,8 +43,8 @@ jobs:
       
       - name: Pass secrets
         run: |
-          echo "REACT_APP_BACKEND_URL=${{secrets.ADX_BACKEND_URL}}" > .env
-          echo "REACT_APP_GOOGLE_MAPS_API_KEY=${{secrets.ADX_GOOGLE_MAPS_API_KEY}}" >> .env
+          echo "REACT_APP_BACKEND_URL=${{secrets.ADX_BACKEND_URL}}" > ${{secrets.WORKING_DIRECTORY}}/adx-web/.env
+          echo "REACT_APP_GOOGLE_MAPS_API_KEY=${{secrets.ADX_GOOGLE_MAPS_API_KEY}}" >> ${{secrets.WORKING_DIRECTORY}}/adx-web/.env
 
       - name: Deploy docker stack
         working-directory: ${{secrets.WORKING_DIRECTORY}}/adx-web
