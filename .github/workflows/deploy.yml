@@ -26,7 +26,10 @@ jobs:
 
       - name: 'Build and push to ghcr'
         run: |
-          docker build --tag ghcr.io/airdex-monitoring/adx-web:latest .
+          docker build \
+            --build-arg REACT_APP_BACKEND_URL=${{secrets.ADX_BACKEND_URL}} \
+            --build-arg REACT_APP_GOOGLE_MAPS_API_KEY=${{secrets.ADX_GOOGLE_MAPS_API_KEY}} \
+            --tag ghcr.io/airdex-monitoring/adx-web:latest .
           docker push ghcr.io/airdex-monitoring/adx-web:latest
 
   deploy:
@@ -40,11 +43,6 @@ jobs:
 
       - name: Pull image from ghcr
         run: docker pull ghcr.io/airdex-monitoring/adx-web:latest
-      
-      - name: Pass secrets
-        run: |
-          echo "REACT_APP_BACKEND_URL=${{secrets.ADX_BACKEND_URL}}" > ${{secrets.WORKING_DIRECTORY}}/adx-web/.env
-          echo "REACT_APP_GOOGLE_MAPS_API_KEY=${{secrets.ADX_GOOGLE_MAPS_API_KEY}}" >> ${{secrets.WORKING_DIRECTORY}}/adx-web/.env
 
       - name: Deploy docker stack
         working-directory: ${{secrets.WORKING_DIRECTORY}}/adx-web
