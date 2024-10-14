@@ -2,8 +2,11 @@ import { InfoWindow, Map, MapCameraChangedEvent, MapCameraProps, Marker } from '
 import React from 'react'
 import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
 import { format } from 'date-fns';
-import { Circle } from './circle';
+import { Circle } from './geometry/circle';
 import { handleQualityColor, INITIAL_CAMERA } from '../../../common/mapUtils';
+import { Polygon } from './geometry/polygon';
+import { POLYGONS } from '../../../polygons';
+
 
 interface CustomMapProps {
     airSensorData: IAirSensorSignal[];
@@ -28,26 +31,53 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
         setSelectedSensor(null);
     };
 
+    const filteredSensorData = React.useMemo(() => {
+        return airSensorData.filter(v => v.lat !== null && v.lon !== null);
+    }, [airSensorData]);
+
+    const getCurrentPosition = () => {
+        try {
+            const position = JSON.parse(localStorage.getItem("currentPosition") || "");
+            return position ? { lat: position.lat, lng: position.lng } : null;
+        } catch (error) {
+            console.error("Error parsing current position from localStorage", error);
+            return null;
+        }
+    };
+
+    const currentPosition = getCurrentPosition();
+
     return (
         <Map
-            style={{ width: '100%', height: "500px" }}
+            style={{ width: '100%', height: window.innerHeight * 0.8 }}
             gestureHandling={'greedy'}
             disableDefaultUI={true}
             {...cameraProps}
+            renderingType={'VECTOR'}
+            colorScheme={'FOLLOW_SYSTEM'}
             onCameraChanged={handleCameraChange}
         >
-            {airSensorData?.filter(v => v.lat !== null && v.lon !== null).map((sensor, index) => (
+            {filteredSensorData.map((sensor, index) => (
                 <Circle
-                    radius={200}
+                    radius={30}
                     center={{
                         lat: Number(sensor.lat) + 0.0001,
                         lng: Number(sensor.lon) + 0.0001,
                     }}
                     onClick={() => handleCircleClick(sensor)}
                     strokeOpacity={0.5}
+                    strokeWeight={0.5}
                     fillColor={handleQualityColor(sensor.aqiLevel)}
                     fillOpacity={0.5}
                     key={index}
+                />
+            ))}
+            {POLYGONS.map((polygon, index) => (
+                <Polygon
+                    key={index}
+                    strokeWeight={0.7}
+                    fillColor={"#000000"}
+                    paths={polygon.points.map(point => ({ lat: point[0], lng: point[1] }))}
                 />
             ))}
             {infowindowOpen && selectedSensor && (
@@ -104,13 +134,10 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
                     </table>
                 </InfoWindow>
             )}
-            {localStorage.getItem("currentPosition") && (
+            {currentPosition && (
                 <Marker
                     key="currentPosition"
-                    position={{
-                        lat: localStorage.getItem("currentPosition") ? JSON.parse(localStorage.getItem("currentPosition") || "").lat : 0,
-                        lng: localStorage.getItem("currentPosition") ? JSON.parse(localStorage.getItem("currentPosition") || "").lng : 0,
-                    }}
+                    position={currentPosition}
                 />
             )}
         </Map>

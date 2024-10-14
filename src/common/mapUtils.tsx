@@ -4,10 +4,10 @@ export const INITIAL_CAMERA = {
   center: {
     lat: localStorage.getItem("currentPosition")
       ? JSON.parse(localStorage.getItem("currentPosition") || "").lat
-      : 0,
+      : 51.092003,
     lng: localStorage.getItem("currentPosition")
       ? JSON.parse(localStorage.getItem("currentPosition") || "").lng
-      : 0,
+      : 71.423560,
   },
   zoom: 14,
 };

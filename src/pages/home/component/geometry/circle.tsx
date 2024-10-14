@@ -53,10 +53,10 @@ function useCircle(props: CircleProps) {
     });
 
     const circle = useRef(new google.maps.Circle()).current;
-    // update circleOptions (note the dependencies aren't properly checked
-    // here, we just assume that setOptions is smart enough to not waste a
-    // lot of time updating values that didn't change)
-    circle.setOptions(circleOptions);
+
+    useEffect(() => {
+        circle.setOptions(circleOptions);
+    }, [circleOptions, circle]);
 
     useEffect(() => {
         if (!center) return;
@@ -65,7 +65,9 @@ function useCircle(props: CircleProps) {
 
     useEffect(() => {
         if (radius === undefined || radius === null) return;
-        if (radius !== circle.getRadius()) circle.setRadius(radius);
+        if (radius !== circle.getRadius()) {
+            circle.setRadius(radius);
+        }
     }, [radius, circle]);
 
     const map = useContext(GoogleMapsContext)?.map;
@@ -73,9 +75,7 @@ function useCircle(props: CircleProps) {
     // create circle instance and add to the map once the map is available
     useEffect(() => {
         if (!map) {
-            if (map === undefined)
-                console.error('<Circle> has to be inside a Map component.');
-
+            console.error('<Circle> must be used within a <Map> component. Ensure the map context is provided.');
             return;
         }
 
@@ -86,38 +86,40 @@ function useCircle(props: CircleProps) {
         };
     }, [map, circle]);
 
+
     // attach and re-attach event-handlers when any of the properties change
     useEffect(() => {
         if (!circle) return;
 
-        // Add event listeners
         const gme = google.maps.event;
-        [
-            ['click', 'onClick'],
-            ['drag', 'onDrag'],
-            ['dragstart', 'onDragStart'],
-            ['dragend', 'onDragEnd'],
-            ['mouseover', 'onMouseOver'],
-            ['mouseout', 'onMouseOut']
-        ].forEach(([eventName, eventCallback]) => {
-            gme.addListener(circle, eventName, (e: google.maps.MapMouseEvent) => {
-                const callback = callbacks.current[eventCallback];
-                if (callback) callback(e);
-            });
+
+        const listeners = [
+            { name: 'click', handler: onClick },
+            { name: 'drag', handler: onDrag },
+            { name: 'dragstart', handler: onDragStart },
+            { name: 'dragend', handler: onDragEnd },
+            { name: 'mouseover', handler: onMouseOver },
+            { name: 'mouseout', handler: onMouseOut }
+        ];
+
+        listeners.forEach(({ name, handler }) => {
+            if (handler) {
+                gme.addListener(circle, name, handler);
+            }
         });
+
         gme.addListener(circle, 'radius_changed', () => {
-            const newRadius = circle.getRadius();
-            callbacks.current.onRadiusChanged?.(newRadius);
+            callbacks.current.onRadiusChanged?.(circle.getRadius());
         });
+
         gme.addListener(circle, 'center_changed', () => {
-            const newCenter = circle.getCenter();
-            callbacks.current.onCenterChanged?.(newCenter);
+            callbacks.current.onCenterChanged?.(circle.getCenter());
         });
 
         return () => {
             gme.clearInstanceListeners(circle);
         };
-    }, [circle]);
+    }, [circle, onClick, onDrag, onDragStart, onDragEnd, onMouseOver, onMouseOut]);
 
     return circle;
 }
@@ -128,7 +130,7 @@ function useCircle(props: CircleProps) {
 export const Circle = forwardRef((props: CircleProps, ref: CircleRef) => {
     const circle = useCircle(props);
 
-    useImperativeHandle(ref, () => circle);
+    useImperativeHandle(ref, () => circle, [circle]);
 
     return null;
 });
