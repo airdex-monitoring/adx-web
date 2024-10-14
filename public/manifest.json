@@ -1,6 +1,6 @@
 {
-  "short_name": "React App",
-  "name": "Create React App Sample",
+  "short_name": "AirDEX",
+  "name": "AirDEX - Air Quality Index monitoring",
   "icons": [
     {
       "src": "favicon.ico",
