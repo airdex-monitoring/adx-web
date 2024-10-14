@@ -10,6 +10,7 @@ export const INITIAL_CAMERA = {
       : 71.423560,
   },
   zoom: 14,
+  maxZoom: 16.40,
 };
 
 export const handleQualityColor = (aqiLevel: string) => {

@@ -1,10 +1,9 @@
-import { InfoWindow, Map, MapCameraChangedEvent, MapCameraProps, Marker } from '@vis.gl/react-google-maps'
+import { InfoWindow, Map, MapCameraChangedEvent, MapCameraProps, Marker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps'
 import React from 'react'
 import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
 import { format } from 'date-fns';
 import { Circle } from './geometry/circle';
 import { handleQualityColor, INITIAL_CAMERA } from '../../../common/mapUtils';
-import { Polygon } from './geometry/polygon';
 import { POLYGONS } from '../../../polygons';
 
 
@@ -13,6 +12,9 @@ interface CustomMapProps {
 }
 
 const CustomMap = ({ airSensorData }: CustomMapProps) => {
+    const coreLib = useMapsLibrary('core');
+    const map = useMap();
+
     const [cameraProps, setCameraProps] = React.useState<MapCameraProps>(INITIAL_CAMERA);
     const [infowindowOpen, setInfowindowOpen] = React.useState(false);
     const [selectedSensor, setSelectedSensor] = React.useState<IAirSensorSignal | null>(null);
@@ -30,6 +32,65 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
         setInfowindowOpen(false);
         setSelectedSensor(null);
     };
+
+    React.useEffect(() => {
+        if (!coreLib || !map) return;
+
+        const dataLayer = new window.google.maps.Data(); // Initialize the Data Layer
+
+        const geoJsonPolygons = {
+            type: 'FeatureCollection',
+            features: POLYGONS.map((polygon) => {
+                const points = polygon.points.map(point => [point[1], point[0]]); // Reverse to [lng, lat]
+
+                // Ensure the polygon is closed
+                if (points[0][0] !== points[points.length - 1][0] || points[0][1] !== points[points.length - 1][1]) {
+                    points.push(points[0]);
+                }
+
+                return {
+                    type: 'Feature',
+                    geometry: {
+                        type: 'Polygon',
+                        coordinates: [points],
+                    },
+                    properties: {
+                        id: polygon.code,
+                        fillColor: '#000000',
+                    },
+                };
+            }),
+        }
+        dataLayer.addGeoJson(geoJsonPolygons);
+
+        // Set styles for the polygons
+        dataLayer.setStyle((feature: any) => {
+            return {
+                fillColor: "#FFFFFF", // Return the color as a valid string
+                strokeWeight: 0.7,
+            };
+        });
+
+        // Add click event listener to fetch data by polygon ID
+        dataLayer.addListener('click', (event: any) => {
+            const polygonId = event.feature.getProperty('id'); // Get the polygon ID
+            console.log('Polygon clicked with ID:', polygonId);
+
+            // new window.google.maps.InfoWindow({
+            //     content: `Polygon ID: ${polygonId}`,
+            //     position: {
+            //         lat: event.latLng.lat(),
+            //         lng: event.latLng.lng(),
+            //     }
+            // }).open(map);
+        });
+
+        dataLayer.setMap(map);
+
+        return () => {
+            dataLayer.setMap(null);
+        };
+    }, [coreLib, map]);
 
     const filteredSensorData = React.useMemo(() => {
         return airSensorData.filter(v => v.lat !== null && v.lon !== null);
@@ -70,14 +131,6 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
                     fillColor={handleQualityColor(sensor.aqiLevel)}
                     fillOpacity={0.5}
                     key={index}
-                />
-            ))}
-            {POLYGONS.map((polygon, index) => (
-                <Polygon
-                    key={index}
-                    strokeWeight={0.7}
-                    fillColor={"#000000"}
-                    paths={polygon.points.map(point => ({ lat: point[0], lng: point[1] }))}
                 />
             ))}
             {infowindowOpen && selectedSensor && (
