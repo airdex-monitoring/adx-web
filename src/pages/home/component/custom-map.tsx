@@ -35,7 +35,7 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
         headerContent.className = 'text-center text-white';
         headerContent.style.backgroundColor = handleQualityColor(sector.aqiLevel);
         headerContent.innerHTML = `
-            <p class="text-lg font-bold">${Number(sector.aqiAvg).toFixed(1)} / 100</p>
+            <p class="text-lg font-bold">${Number(sector.aqiAvg).toFixed(1)} / 300</p>
             <p class="text-sm font-light">${sector.aqiLevel}</p>
         `;
 
@@ -71,7 +71,7 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
             content: content,
             zIndex: 1,
             headerContent: headerContent,
-            position: position
+            position: position,
         });
 
         handleClose();
@@ -201,7 +201,7 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
                 />
             ))}
             {infowindowOpen && selectedSensor && selectedSector && (
-               <InfoWindowSensor sensor={selectedSensor} onClose={handleClose} />
+                <InfoWindowSensor sensor={selectedSensor} onClose={handleClose} />
             )}
             {currentPosition && (
                 <Marker

@@ -23,7 +23,7 @@ const InfoWindowSensor: React.FC<InfoWindowSensorProps> = ({ sensor, onClose }) 
                         backgroundColor: handleQualityColor(sensor.aqiLevel),
                     }}
                 >
-                    <p className="text-lg font-bold">{`${sensor.aqi} / 100`}</p>
+                    <p className="text-lg font-bold">{`${sensor.aqi} / 300`}</p>
                     <p className="text-sm font-light">{sensor.aqiLevel}</p>
                 </div>
             }

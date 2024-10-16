@@ -1,5 +1,3 @@
-"use server";
-
 import React from 'react';
 import Header from '../../components/ui/header'
 import CustomMap from './component/custom-map'
