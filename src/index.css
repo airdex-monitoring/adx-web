@@ -17,6 +17,10 @@
   padding: 0;
 }
 
+.gm-ui-hover-effect {
+  display: none;
+}
+
 @layer base {
   body {
     font-family: 'Inter', sans-serif;

@@ -1,37 +1,98 @@
-import { InfoWindow, Map, MapCameraChangedEvent, MapCameraProps, Marker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps'
+import { Map, MapCameraChangedEvent, MapCameraProps, Marker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps'
 import React from 'react'
-import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
-import { format } from 'date-fns';
 import { Circle } from './geometry/circle';
 import { handleQualityColor, INITIAL_CAMERA } from '../../../common/mapUtils';
-import { POLYGONS } from '../../../polygons';
+import { useFetchAirData } from '../../../services/air-sensor';
+import { IMapSector } from '../../../interfaces/IMapSector';
+import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
+import InfoWindowSensor from './info-window-sensor';
 
-
-interface CustomMapProps {
-    airSensorData: IAirSensorSignal[];
+interface ICustomMapProps {
+    sectors: IMapSector[];
 }
 
-const CustomMap = ({ airSensorData }: CustomMapProps) => {
+const CustomMap = ({ sectors }: ICustomMapProps) => {
     const coreLib = useMapsLibrary('core');
     const map = useMap();
 
     const [cameraProps, setCameraProps] = React.useState<MapCameraProps>(INITIAL_CAMERA);
+    const infoWindowRef = React.useRef<google.maps.InfoWindow | null>(null);
+
     const [infowindowOpen, setInfowindowOpen] = React.useState(false);
-    const [selectedSensor, setSelectedSensor] = React.useState<IAirSensorSignal | null>(null);
+    const [selectedSensor, setSelectedSensor] = React.useState<IAirSensorSignal | undefined>(undefined);
+    const [selectedSector, setSelectedSector] = React.useState<IMapSector | undefined>(undefined);
+
+    const { data: sensorData } = useFetchAirData(selectedSector ? Number(selectedSector.id) : undefined);
 
     const handleCameraChange = React.useCallback((ev: MapCameraChangedEvent) =>
         setCameraProps(ev.detail), []
     );
 
+    const handleClickSector = (sector: IMapSector, position: google.maps.LatLng) => {
+        setSelectedSector(sector);
+
+        const headerContent = document.createElement('div');
+        headerContent.className = 'text-center text-white';
+        headerContent.style.backgroundColor = handleQualityColor(sector.aqiLevel);
+        headerContent.innerHTML = `
+            <p class="text-lg font-bold">${Number(sector.aqiAvg).toFixed(1)} / 100</p>
+            <p class="text-sm font-light">${sector.aqiLevel}</p>
+        `;
+
+        const content = document.createElement('table');
+        content.innerHTML = `
+            <tbody>
+                <tr>
+                    <td class="p-2" colspan="2">
+                        <p class="text-left text-md font-bold">PM 1.0</p>
+                    </td>
+                    <td class="text-left font-light">${sector.pm_1_0_avg.toFixed(1)}</td>
+                </tr>
+                <tr>
+                    <td class="p-2" colspan="2">
+                        <p class="text-left text-md font-bold">PM 2.5</p>
+                    </td>
+                    <td class="text-left font-light">${sector.pm_2_5_avg.toFixed(1)}</td>
+                </tr>
+                <tr>
+                    <td class="p-2" colspan="2">
+                        <p class="text-left text-md font-bold">PM 10</p>
+                    </td>
+                    <td class="text-left font-light">${sector.pm_10_avg.toFixed(1)}</td>
+                </tr>
+            </tbody>
+        `;
+
+        if (infoWindowRef.current) {
+            infoWindowRef.current.close();
+        }
+
+        const newInfoWindow = new window.google.maps.InfoWindow({
+            content: content,
+            zIndex: 1,
+            headerContent: headerContent,
+            position: position
+        });
+
+        handleClose();
+        newInfoWindow.open(map);
+        infoWindowRef.current = newInfoWindow;
+    }
+
     const handleCircleClick = (sensor: IAirSensorSignal) => {
         setSelectedSensor(sensor);
         setInfowindowOpen(true);
-    };
+
+        if (infoWindowRef.current) {
+            infoWindowRef.current.close();
+        }
+    }
 
     const handleClose = () => {
+        setSelectedSensor(undefined);
         setInfowindowOpen(false);
-        setSelectedSensor(null);
-    };
+    }
+
 
     React.useEffect(() => {
         if (!coreLib || !map) return;
@@ -40,8 +101,8 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
 
         const geoJsonPolygons = {
             type: 'FeatureCollection',
-            features: POLYGONS.map((polygon) => {
-                const points = polygon.points.map(point => [point[1], point[0]]); // Reverse to [lng, lat]
+            features: sectors.map((polygon) => {
+                const points = polygon.points.map(point => [point.lon, point.lat]); // Reverse to [lng, lat]
 
                 // Ensure the polygon is closed
                 if (points[0][0] !== points[points.length - 1][0] || points[0][1] !== points[points.length - 1][1]) {
@@ -55,8 +116,7 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
                         coordinates: [points],
                     },
                     properties: {
-                        id: polygon.code,
-                        fillColor: '#000000',
+                        ...polygon,
                     },
                 };
             }),
@@ -66,23 +126,31 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
         // Set styles for the polygons
         dataLayer.setStyle((feature: any) => {
             return {
-                fillColor: "#FFFFFF", // Return the color as a valid string
-                strokeWeight: 0.7,
+                fillColor: handleQualityColor(feature.getProperty('aqiLevel')),
+                strokeWeight: 1,
+                strokeOpacity: 0.8,
+                strokeColor: '#000000',
             };
         });
 
         // Add click event listener to fetch data by polygon ID
         dataLayer.addListener('click', (event: any) => {
-            const polygonId = event.feature.getProperty('id'); // Get the polygon ID
-            console.log('Polygon clicked with ID:', polygonId);
-
-            // new window.google.maps.InfoWindow({
-            //     content: `Polygon ID: ${polygonId}`,
-            //     position: {
-            //         lat: event.latLng.lat(),
-            //         lng: event.latLng.lng(),
-            //     }
-            // }).open(map);
+            handleClickSector(
+                {
+                    id: event.feature.getProperty('id'),
+                    points: event.feature.getGeometry().getAt(0).getArray().map((point: any) => ({
+                        lat: point.lat(),
+                        lon: point.lng(),
+                    })),
+                    aqiAvg: event.feature.getProperty('aqiAvg'),
+                    aqiLevel: event.feature.getProperty('aqiLevel'),
+                    pm_1_0_avg: event.feature.getProperty('pm_1_0_avg'),
+                    pm_2_5_avg: event.feature.getProperty('pm_2_5_avg'),
+                    pm_10_avg: event.feature.getProperty('pm_10_avg'),
+                    createDate: event.feature.getProperty('createDate'),
+                },
+                event.latLng
+            );
         });
 
         dataLayer.setMap(map);
@@ -90,11 +158,10 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
         return () => {
             dataLayer.setMap(null);
         };
-    }, [coreLib, map]);
 
-    const filteredSensorData = React.useMemo(() => {
-        return airSensorData.filter(v => v.lat !== null && v.lon !== null);
-    }, [airSensorData]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [coreLib, map, sectors, selectedSector]);
+
 
     const getCurrentPosition = () => {
         try {
@@ -115,77 +182,26 @@ const CustomMap = ({ airSensorData }: CustomMapProps) => {
             disableDefaultUI={true}
             {...cameraProps}
             renderingType={'VECTOR'}
-            colorScheme={'FOLLOW_SYSTEM'}
             onCameraChanged={handleCameraChange}
         >
-            {filteredSensorData.map((sensor, index) => (
+            {sensorData?.map((sensor, index) => (
                 <Circle
                     radius={30}
                     center={{
-                        lat: Number(sensor.lat) + 0.0001,
-                        lng: Number(sensor.lon) + 0.0001,
+                        lat: Number(sensor.point.lat),
+                        lng: Number(sensor.point.lon),
                     }}
+                    zIndex={2}
                     onClick={() => handleCircleClick(sensor)}
-                    strokeOpacity={0.5}
-                    strokeWeight={0.5}
+                    strokeOpacity={0.8}
+                    strokeWeight={0.8}
                     fillColor={handleQualityColor(sensor.aqiLevel)}
-                    fillOpacity={0.5}
+                    fillOpacity={0.9}
                     key={index}
                 />
             ))}
-            {infowindowOpen && selectedSensor && (
-                <InfoWindow
-                    position={{
-                        lat: Number(selectedSensor.lat) + 0.0001,
-                        lng: Number(selectedSensor.lon) + 0.0001,
-                    }}
-                    shouldFocus={false}
-                    headerContent={
-                        <div className="text-center text-white"
-                            style={{
-                                backgroundColor: handleQualityColor(selectedSensor.aqiLevel),
-                            }}
-                        >
-                            <p className="text-lg font-bold">{`${selectedSensor.aqi} / 100`}</p>
-                            <p className="text-sm font-light">{selectedSensor.aqiLevel}</p>
-                        </div>
-                    }
-                    onCloseClick={() => handleClose()}
-                >
-                    <table>
-                        <tbody>
-                            <tr>
-                                <td className="p-2" colSpan={2}>
-                                    <p className="text-left text-md font-bold">PM 1.0</p>
-                                </td>
-                                <td className='text-left font-light'>{selectedSensor.pm_1_0}</td>
-                            </tr>
-                            <tr>
-                                <td className="p-2" colSpan={2}>
-                                    <p className="text-left text-md font-bold">PM 2.5</p>
-                                </td>
-                                <td className='text-left font-light'>{selectedSensor.pm_2_5}</td>
-                            </tr>
-                            <tr>
-                                <td className="p-2" colSpan={2}>
-                                    <p className="text-left text-md font-bold">PM 10</p>
-                                </td>
-                                <td className='text-left font-light'>{selectedSensor.pm_10}</td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr>
-                                <td className="p-2" colSpan={2}>
-                                    <p className="text-left text-md font-bold">Obtained at</p>
-                                </td>
-                                <td className='text-left font-light whitespace-pre-line'>
-                                    {`${format(selectedSensor.createDate, "dd-MM-yyyy")}
-                                        ${format(selectedSensor.createDate, "HH:mm:ss")}`}
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </InfoWindow>
+            {infowindowOpen && selectedSensor && selectedSector && (
+               <InfoWindowSensor sensor={selectedSensor} onClose={handleClose} />
             )}
             {currentPosition && (
                 <Marker

@@ -2,8 +2,7 @@ export interface IAirSensorSignal {
   id: number;
   createDate: Date;
 
-  lat: number;
-  lon: number;
+  point: LanLngPointDto;
 
   pm_1_0: number;
   pm_2_5: number;
@@ -11,6 +10,11 @@ export interface IAirSensorSignal {
 
   aqi: number;
   aqiLevel: AqiLevel;
+}
+
+export interface LanLngPointDto {
+  lat: number;
+  lon: number;
 }
 
 export interface IAirSensorSignalAcceptRequest {

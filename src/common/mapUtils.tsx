@@ -27,5 +27,7 @@ export const handleQualityColor = (aqiLevel: string) => {
       return "#EF4444";
     case AqiLevel.HAZARDOUS:
       return "#EF4444";
+    default:
+      return "#000000";
   }
 };
