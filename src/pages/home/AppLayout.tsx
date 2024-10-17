@@ -4,7 +4,6 @@ import CustomMap from './component/custom-map'
 import { useFetchSectors } from '../../services/air-sensor';
 
 const AppLayout = () => {
-
   const { data } = useFetchSectors();
 
   React.useEffect(() => {
@@ -29,7 +28,7 @@ const AppLayout = () => {
   return (
     <div className={"container flex flex-col"}>
       <Header />
-      {data && <CustomMap sectors={data} />}
+      <CustomMap sectors={data} />
     </div>
   )
 }

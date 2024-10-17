@@ -1,4 +1,4 @@
-import { Map, MapCameraChangedEvent, MapCameraProps, Marker, useMap, useMapsLibrary } from '@vis.gl/react-google-maps'
+import { Map, MapCameraChangedEvent, MapCameraProps, Marker, useApiIsLoaded, useMap, useMapsLibrary } from '@vis.gl/react-google-maps'
 import React from 'react'
 import { Circle } from './geometry/circle';
 import { handleQualityColor, INITIAL_CAMERA } from '../../../common/mapUtils';
@@ -6,14 +6,16 @@ import { useFetchAirData } from '../../../services/air-sensor';
 import { IMapSector } from '../../../interfaces/IMapSector';
 import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
 import InfoWindowSensor from './info-window-sensor';
+import Spinner from '../../../components/ui/spinner';
 
 interface ICustomMapProps {
-    sectors: IMapSector[];
+    sectors?: IMapSector[];
 }
 
 const CustomMap = ({ sectors }: ICustomMapProps) => {
     const coreLib = useMapsLibrary('core');
     const map = useMap();
+    const isLoaded = useApiIsLoaded();
 
     const [cameraProps, setCameraProps] = React.useState<MapCameraProps>(INITIAL_CAMERA);
     const infoWindowRef = React.useRef<google.maps.InfoWindow | null>(null);
@@ -101,7 +103,7 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
 
         const geoJsonPolygons = {
             type: 'FeatureCollection',
-            features: sectors.map((polygon) => {
+            features: sectors?.map((polygon) => {
                 const points = polygon.points.map(point => [point.lon, point.lat]); // Reverse to [lng, lat]
 
                 // Ensure the polygon is closed
@@ -175,11 +177,12 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
 
     const currentPosition = getCurrentPosition();
 
-    return (
+    return isLoaded ? (
         <Map
             style={{ width: '100%', height: window.innerHeight * 0.8 }}
             gestureHandling={'greedy'}
             disableDefaultUI={true}
+            tilt={0}
             {...cameraProps}
             renderingType={'VECTOR'}
             onCameraChanged={handleCameraChange}
@@ -210,7 +213,7 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
                 />
             )}
         </Map>
-    )
+    ) : <Spinner width='64' height='64' />
 }
 
 export default CustomMap
