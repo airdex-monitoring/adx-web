@@ -9,7 +9,7 @@
 }
 
 /* Google Maps info window */
-.gm-style-iw-ch{
+.gm-style-iw-ch {
   padding: 0;
 }
 
@@ -17,13 +17,27 @@
   padding: 0;
 }
 
+.gm-style-iw {
+  width: 170px !important;
+}
+
+.gm-style-iw button {
+  width: 30px !important;
+}
+
+.gm-style-iw button span {
+  margin: 3px !important;
+}
+
 @layer base {
   body {
-    font-family: 'Inter', sans-serif;
+    font-family: "Inter", sans-serif;
     background-color: #f3f4f6;
   }
 }
 
-@layer components {}
+@layer components {
+}
 
-@layer utilities {}
+@layer utilities {
+}

@@ -1,8 +1,8 @@
 import axios, { AxiosResponse } from "axios";
 import {
   IAirSensorSignal,
-  IAirSensorSignalAcceptRequest,
 } from "../interfaces/IAirSensorSignal";
+import { IMapSector } from "../interfaces/IMapSector";
 
 const axiosApi = axios.create({
   timeout: 300000,
@@ -11,14 +11,12 @@ const axiosApi = axios.create({
 })
 
 export const apiClient = {
-  airSensor: {
-    findAll: async (): Promise<AxiosResponse<IAirSensorSignal[]>> => {
-      return await axiosApi.get(`/air-signals`);
+  aqi: {
+    findAll: async (sectorId?: number): Promise<AxiosResponse<IAirSensorSignal[]>> => {
+      return await axiosApi.get(`/aqi`, { params: { sectorId } });
     },
-    save: async (
-      data: IAirSensorSignalAcceptRequest
-    ): Promise<AxiosResponse<IAirSensorSignal>> => {
-      return await axiosApi.post(`/air-signals`, data);
+    getSectors: async (): Promise<AxiosResponse<IMapSector[]>> => {
+      return await axiosApi.get(`/aqi/map-sectors-avg`);
     },
   },
 };
