@@ -2,7 +2,7 @@ import React from 'react'
 import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
 import { handleQualityColor } from '../../../common/mapUtils';
 import { InfoWindow } from '@vis.gl/react-google-maps';
-import { format, formatInTimeZone } from 'date-fns-tz'
+import { formatInTimeZone } from 'date-fns-tz'
 import { CONSTANTS } from '../../../common/constants';
 
 interface InfoWindowSensorProps {
