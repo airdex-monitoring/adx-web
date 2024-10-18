@@ -97,13 +97,13 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
 
 
     React.useEffect(() => {
-        if (!coreLib || !map) return;
+        if (!coreLib || !map || !Array.isArray(sectors)) return;
 
         const dataLayer = new window.google.maps.Data(); // Initialize the Data Layer
 
         const geoJsonPolygons = {
             type: 'FeatureCollection',
-            features: sectors?.map((polygon) => {
+            features: sectors.map((polygon) => {
                 const points = polygon.points.map(point => [point.lon, point.lat]); // Reverse to [lng, lat]
 
                 // Ensure the polygon is closed
@@ -122,7 +122,8 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
                     },
                 };
             }),
-        }
+        };
+
         dataLayer.addGeoJson(geoJsonPolygons);
 
         // Set styles for the polygons
@@ -167,7 +168,11 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
 
     const getCurrentPosition = () => {
         try {
-            const position = JSON.parse(localStorage.getItem("currentPosition") || "");
+            const positionString = localStorage.getItem("currentPosition");
+            if (!positionString) {
+                return null;
+            }
+            const position = JSON.parse(positionString);
             return position ? { lat: position.lat, lng: position.lng } : null;
         } catch (error) {
             console.error("Error parsing current position from localStorage", error);
