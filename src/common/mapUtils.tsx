@@ -1,15 +1,18 @@
+import Spinner from "../components/ui/spinner";
 import { AqiLevel } from "../interfaces/IAirSensorSignal";
+import { CONSTANTS } from "./constants";
 
 export const INITIAL_CAMERA = {
   center: {
     lat: localStorage.getItem("currentPosition")
       ? JSON.parse(localStorage.getItem("currentPosition") || "").lat
-      : 0,
+      : CONSTANTS.ASTANA_AITU_POINT.lat,
     lng: localStorage.getItem("currentPosition")
       ? JSON.parse(localStorage.getItem("currentPosition") || "").lng
-      : 0,
+      : CONSTANTS.ASTANA_AITU_POINT.lng,
   },
-  zoom: 14,
+  zoom: CONSTANTS.INITIAL_CAMERA.zoom,
+  maxZoom: CONSTANTS.INITIAL_CAMERA.maxZoom,
 };
 
 export const handleQualityColor = (aqiLevel: string) => {
@@ -26,5 +29,13 @@ export const handleQualityColor = (aqiLevel: string) => {
       return "#EF4444";
     case AqiLevel.HAZARDOUS:
       return "#EF4444";
+    default:
+      return "#000000";
   }
 };
+
+export const renderLoading = (isLoading: boolean, child: React.ReactNode | React.ReactNode[]) => {
+  return isLoading
+    ? <Spinner width="64" height="64" />
+    : child
+}

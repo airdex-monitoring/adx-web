@@ -1,14 +1,10 @@
-"use server";
-
 import React from 'react';
 import Header from '../../components/ui/header'
 import CustomMap from './component/custom-map'
-import { useFetchAirData } from '../../services/air-sensor';
+import { useFetchSectors } from '../../services/air-sensor';
 
 const AppLayout = () => {
-  const {
-    data
-  } = useFetchAirData();
+  const { data } = useFetchSectors();
 
   React.useEffect(() => {
     if (navigator.geolocation) {
@@ -32,9 +28,7 @@ const AppLayout = () => {
   return (
     <div className={"container flex flex-col"}>
       <Header />
-      {data && (
-        <CustomMap airSensorData={data} />
-      )}
+      <CustomMap sectors={data} />
     </div>
   )
 }
