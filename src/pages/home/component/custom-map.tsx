@@ -226,7 +226,7 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
                 </Map>
             </div>
         </div>
-    ) : <Spinner width='64' height='64' />
+    ) : <Spinner width='60' height='60' />
 }
 
 export default CustomMap
