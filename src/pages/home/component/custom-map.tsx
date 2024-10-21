@@ -1,12 +1,14 @@
 import { Map, MapCameraChangedEvent, MapCameraProps, Marker, useApiIsLoaded, useMap, useMapsLibrary } from '@vis.gl/react-google-maps'
 import React from 'react'
 import { Circle } from './geometry/circle';
-import { handleQualityColor, INITIAL_CAMERA } from '../../../common/mapUtils';
+import { INITIAL_CAMERA } from '../../../common/mapUtils';
 import { useFetchAirData } from '../../../services/air-sensor';
 import { IMapSector } from '../../../interfaces/IMapSector';
 import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
 import InfoWindowSensor from './info-window-sensor';
 import Spinner from '../../../components/ui/spinner';
+import { handleQualityColor } from '../../../common/color';
+import MapFilter from './map-filter';
 
 interface ICustomMapProps {
     sectors?: IMapSector[];
@@ -183,41 +185,47 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
     const currentPosition = getCurrentPosition();
 
     return isLoaded ? (
-        <Map
-            style={{ width: '100%', height: window.innerHeight * 0.8 }}
-            gestureHandling={'greedy'}
-            disableDefaultUI={true}
-            tilt={0}
-            {...cameraProps}
-            renderingType={'VECTOR'}
-            onCameraChanged={handleCameraChange}
-        >
-            {sensorData?.map((sensor, index) => (
-                <Circle
-                    radius={30}
-                    center={{
-                        lat: Number(sensor.point.lat),
-                        lng: Number(sensor.point.lon),
-                    }}
-                    zIndex={2}
-                    onClick={() => handleCircleClick(sensor)}
-                    strokeOpacity={0.8}
-                    strokeWeight={0.8}
-                    fillColor={handleQualityColor(sensor.aqiLevel)}
-                    fillOpacity={0.9}
-                    key={index}
-                />
-            ))}
-            {infowindowOpen && selectedSensor && selectedSector && (
-                <InfoWindowSensor sensor={selectedSensor} onClose={handleClose} />
-            )}
-            {currentPosition && (
-                <Marker
-                    key="currentPosition"
-                    position={currentPosition}
-                />
-            )}
-        </Map>
+        <div className="w-full flex flex-col gap-[10px]" >
+            <h3>Карта</h3>
+            <MapFilter />
+            <div className='w-full overflow-hidden rounded-[15px]' style={{ height: window.innerHeight * 0.8 }}>
+                <Map
+                    style={{ width: '100%', height: '100%' }}
+                    gestureHandling={'greedy'}
+                    disableDefaultUI={true}
+                    tilt={0}
+                    {...cameraProps}
+                    renderingType={'VECTOR'}
+                    onCameraChanged={handleCameraChange}
+                >
+                    {sensorData?.map((sensor, index) => (
+                        <Circle
+                            radius={30}
+                            center={{
+                                lat: Number(sensor.point.lat),
+                                lng: Number(sensor.point.lon),
+                            }}
+                            zIndex={2}
+                            onClick={() => handleCircleClick(sensor)}
+                            strokeOpacity={0.8}
+                            strokeWeight={0.8}
+                            fillColor={handleQualityColor(sensor.aqiLevel)}
+                            fillOpacity={0.9}
+                            key={index}
+                        />
+                    ))}
+                    {infowindowOpen && selectedSensor && selectedSector && (
+                        <InfoWindowSensor sensor={selectedSensor} onClose={handleClose} />
+                    )}
+                    {currentPosition && (
+                        <Marker
+                            key="currentPosition"
+                            position={currentPosition}
+                        />
+                    )}
+                </Map>
+            </div>
+        </div>
     ) : <Spinner width='64' height='64' />
 }
 

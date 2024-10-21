@@ -32,12 +32,33 @@
 @layer base {
   body {
     font-family: "Montserrat", sans-serif;
-    background-color: #f3f4f6;
   }
 }
 
 @layer components {
+  h1 {
+    @apply text-xl leading-[50px] font-bold text-black;
+  }
+
+  .header-info {
+    @apply font-sans text-xl font-semibold text-black;
+  }
+
+  h3 {
+    @apply text-xl font-semibold leading-[50px] text-black;
+  }
+
+  h4 {
+    @apply text-[15px] leading-[15px] font-semibold text-black tracking-[-0.25px];
+  }
+
+  .tooltip {
+    @apply invisible absolute;
+  }
+
+  .has-tooltip:hover .tooltip {
+    @apply visible z-50;
+  }
 }
 
-@layer utilities {
-}
+@layer utilities {}

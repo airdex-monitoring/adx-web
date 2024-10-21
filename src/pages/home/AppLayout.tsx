@@ -2,6 +2,7 @@ import React from 'react';
 import Header from '../../components/ui/header'
 import CustomMap from './component/custom-map'
 import { useFetchSectors } from '../../services/air-sensor';
+import SummaryBox from './component/summary-box';
 
 const AppLayout = () => {
   const { data } = useFetchSectors();
@@ -26,8 +27,9 @@ const AppLayout = () => {
   }, []);
 
   return (
-    <div className={"container flex flex-col"}>
+    <div className={"container flex flex-col gap-4"}>
       <Header />
+      <SummaryBox />
       <CustomMap sectors={data} />
     </div>
   )
