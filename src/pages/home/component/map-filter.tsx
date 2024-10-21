@@ -59,7 +59,7 @@ const MapFilter = () => {
     };
 
     return (
-        <div className='w-full flex flex-row gap-[10px]'>
+        <div className='w-full flex flex-row gap-[10px] flex-wrap'>
             {filters?.map((filter, index) => (
                 <MapFilterItem
                     title={filter.title}

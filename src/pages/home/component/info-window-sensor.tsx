@@ -19,7 +19,7 @@ const InfoWindowSensor: React.FC<InfoWindowSensorProps> = ({ sensor, onClose }) 
             }}
             shouldFocus={false}
             headerContent={
-                <div className="text-center text-white"
+                <div className="text-center text-black"
                     style={{
                         backgroundColor: handleQualityColor(sensor.aqiLevel),
                     }}

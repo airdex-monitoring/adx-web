@@ -1,20 +1,21 @@
-import { Map, MapCameraChangedEvent, MapCameraProps, Marker, useApiIsLoaded, useMap, useMapsLibrary } from '@vis.gl/react-google-maps'
-import React from 'react'
+import { Map, MapCameraChangedEvent, MapCameraProps, Marker, useApiIsLoaded, useMap, useMapsLibrary } from '@vis.gl/react-google-maps';
+import React from 'react';
 import { Circle } from './geometry/circle';
 import { INITIAL_CAMERA } from '../../../common/mapUtils';
 import { useFetchAirData } from '../../../services/air-sensor';
 import { IMapSector } from '../../../interfaces/IMapSector';
 import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
 import InfoWindowSensor from './info-window-sensor';
-import Spinner from '../../../components/ui/spinner';
 import { handleQualityColor } from '../../../common/color';
 import MapFilter from './map-filter';
+import { Wrapper } from '../../../components/ui/wrapper';
 
 interface ICustomMapProps {
     sectors?: IMapSector[];
+    error: any;
 }
 
-const CustomMap = ({ sectors }: ICustomMapProps) => {
+const CustomMap = ({ sectors, error }: ICustomMapProps) => {
     const coreLib = useMapsLibrary('core');
     const map = useMap();
     const isLoaded = useApiIsLoaded();
@@ -26,7 +27,7 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
     const [selectedSensor, setSelectedSensor] = React.useState<IAirSensorSignal | undefined>(undefined);
     const [selectedSector, setSelectedSector] = React.useState<IMapSector | undefined>(undefined);
 
-    const { data: sensorData } = useFetchAirData(selectedSector ? Number(selectedSector.id) : undefined);
+    const { data: sensorData, error: sensorError } = useFetchAirData(selectedSector ? Number(selectedSector.id) : undefined);
 
     const handleCameraChange = React.useCallback((ev: MapCameraChangedEvent) =>
         setCameraProps(ev.detail), []
@@ -36,7 +37,7 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
         setSelectedSector(sector);
 
         const headerContent = document.createElement('div');
-        headerContent.className = 'text-center text-white';
+        headerContent.className = 'text-center text-black';
         headerContent.style.backgroundColor = handleQualityColor(sector.aqiLevel);
         headerContent.innerHTML = `
             <p class="text-lg font-bold">${Number(sector.aqiAvg).toFixed(1)} / 300</p>
@@ -167,7 +168,6 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [coreLib, map, sectors, selectedSector]);
 
-
     const getCurrentPosition = () => {
         try {
             const positionString = localStorage.getItem("currentPosition");
@@ -184,49 +184,54 @@ const CustomMap = ({ sectors }: ICustomMapProps) => {
 
     const currentPosition = getCurrentPosition();
 
-    return isLoaded ? (
+    return (
         <div className="w-full flex flex-col gap-[10px]" >
             <h3>Карта</h3>
             <MapFilter />
-            <div className='w-full overflow-hidden rounded-[15px]' style={{ height: window.innerHeight * 0.8 }}>
-                <Map
-                    style={{ width: '100%', height: '100%' }}
-                    gestureHandling={'greedy'}
-                    disableDefaultUI={true}
-                    tilt={0}
-                    {...cameraProps}
-                    renderingType={'VECTOR'}
-                    onCameraChanged={handleCameraChange}
-                >
-                    {sensorData?.map((sensor, index) => (
-                        <Circle
-                            radius={30}
-                            center={{
-                                lat: Number(sensor.point.lat),
-                                lng: Number(sensor.point.lon),
-                            }}
-                            zIndex={2}
-                            onClick={() => handleCircleClick(sensor)}
-                            strokeOpacity={0.8}
-                            strokeWeight={0.8}
-                            fillColor={handleQualityColor(sensor.aqiLevel)}
-                            fillOpacity={0.9}
-                            key={index}
-                        />
-                    ))}
-                    {infowindowOpen && selectedSensor && selectedSector && (
-                        <InfoWindowSensor sensor={selectedSensor} onClose={handleClose} />
-                    )}
-                    {currentPosition && (
-                        <Marker
-                            key="currentPosition"
-                            position={currentPosition}
-                        />
-                    )}
-                </Map>
+            <div className="flex justify-between items-center">
+                <p className='font-sans italic text-sm leading-[15px] tracking-[-0.25px] text-[#868686]'>Последнее обновление: 4 секунды назад</p>
             </div>
+            <Wrapper error={error || sensorError} errorHeight={`800`} isLoading={isLoaded}>
+                <div className='w-full overflow-hidden rounded-[15px]' style={{ height: window.innerHeight * 0.8 }}>
+                    <Map
+                        style={{ width: '100%', height: '100%' }}
+                        gestureHandling={'greedy'}
+                        disableDefaultUI={true}
+                        tilt={0}
+                        {...cameraProps}
+                        renderingType={'VECTOR'}
+                        onCameraChanged={handleCameraChange}
+                    >
+                        {sensorData?.map((sensor, index) => (
+                            <Circle
+                                radius={30}
+                                center={{
+                                    lat: Number(sensor.point.lat),
+                                    lng: Number(sensor.point.lon),
+                                }}
+                                zIndex={2}
+                                onClick={() => handleCircleClick(sensor)}
+                                strokeOpacity={0.8}
+                                strokeWeight={0.8}
+                                fillColor={handleQualityColor(sensor.aqiLevel)}
+                                fillOpacity={0.9}
+                                key={index}
+                            />
+                        ))}
+                        {infowindowOpen && selectedSensor && selectedSector && (
+                            <InfoWindowSensor sensor={selectedSensor} onClose={handleClose} />
+                        )}
+                        {currentPosition && (
+                            <Marker
+                                key="currentPosition"
+                                position={currentPosition}
+                            />
+                        )}
+                    </Map>
+                </div>
+            </Wrapper>
         </div>
-    ) : <Spinner width='60' height='60' />
+    )
 }
 
-export default CustomMap
+export default CustomMap;

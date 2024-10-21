@@ -1,4 +1,3 @@
-import React from 'react'
 import { handleQualityColor } from '../../../common/color';
 
 interface SummaryCardProps {
@@ -27,10 +26,10 @@ const SummaryBox = () => {
     }
 
     return (
-        <div className='w-full flex flex-col gap-3'>
+        <div className='w-full flex flex-col gap-[10px]'>
             <h3>Сводка за сегодня</h3>
-            <div className='w-full flex flex-row gap-3'>
-                <SummaryCard title='AQI' value='100' aqiLevel='GOOD' desc='Индекс качества воздуха' />
+            <div className='w-full flex flex-row gap-[10px] flex-auto flex-wrap'>
+                <SummaryCard title='AQI' value='34' aqiLevel='GOOD' desc='Индекс качества воздуха' />
                 <SummaryCard title='µg/m³' value='16.237' aqiLevel='MODERATE' desc='Количество частиц PM 2.5 на кубический метр' />
                 <SummaryCard title='µg/m³' value='4.210' aqiLevel='GOOD' desc='Количество частиц PM 10 на кубический метр' />
             </div>
