@@ -4,7 +4,7 @@ const Header: React.FC = () => {
     return (
         <div className={"flex items-center justify-between py-8"}>
             <div className={"flex gap-3 items-center"}>
-                <img src="/icons/logo.png" alt="logo" />
+                <img className={"max-h-8"} src="/icons/logo.svg" alt="logo" />
                 <h1>Airdex Monitoring</h1>
             </div>
             <h2 className='header-info cursor-pointer'>Информация</h2>
