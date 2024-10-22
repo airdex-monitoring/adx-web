@@ -25,6 +25,11 @@ export interface IAirSensorSignalAcceptRequest {
   pm10: number;
 }
 
+export interface AqiQuery {
+  startDate: Date;
+  endDate: Date;
+}
+
 export enum AqiLevel {
   "GOOD" = "GOOD",
   "MODERATE" = "MODERATE",

@@ -3,7 +3,7 @@ import Spinner from "./spinner"
 
 interface WrapperProps {
     error: boolean
-    errorHeight: string | number;
+    errorHeight: string;
     isLoading: boolean
     children: React.ReactNode
 }

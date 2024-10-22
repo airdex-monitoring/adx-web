@@ -1,7 +1,7 @@
 import React from 'react'
 
 interface ErrorProps {
-  height: string | number
+  height: string
 }
 
 const Error = ({ height }: ErrorProps) => {

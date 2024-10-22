@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from "axios";
-import { IAirSensorSignal } from "../interfaces/IAirSensorSignal";
+import { AqiQuery, IAirSensorSignal } from "../interfaces/IAirSensorSignal";
 import { IMapSector } from "../interfaces/IMapSector";
 
 const axiosApi = axios.create({
@@ -11,12 +11,20 @@ const axiosApi = axios.create({
 export const apiClient = {
   aqi: {
     findAll: async (
-      sectorId?: number
+      sectorId?: number,
     ): Promise<AxiosResponse<IAirSensorSignal[]>> => {
-      return await axiosApi.get(`/aqi`, { params: { sectorId } });
+      return await axiosApi.get(`/aqi`, {
+        params: { sectorId },
+      });
     },
-    getSectors: async (): Promise<AxiosResponse<IMapSector[]>> => {
-      return await axiosApi.get(`/aqi/map-sectors-avg`);
+    getSectors: async (query?: AqiQuery): Promise<AxiosResponse<IMapSector[]>> => {
+      return await axiosApi({
+        method: "GET",
+        url: "/aqi/map-sectors-avg",
+        data: {
+          ...query
+        }
+      });
     },
   },
 };

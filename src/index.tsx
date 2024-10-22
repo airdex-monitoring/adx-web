@@ -13,10 +13,9 @@ const queryClient = new QueryClient({
           error.status === 401 ||
           error.status === 403 ||
           error.status === 500) return false;
-        else if (failureCount < 2) return true;
         else return false;
       },
-      refetchOnWindowFocus: true,
+      refetchOnWindowFocus: false,
     },
   },
 });

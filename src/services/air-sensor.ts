@@ -1,9 +1,8 @@
 import { useQuery } from "react-query";
 import { apiClient } from "../common/apiClient";
-import { IAirSensorSignal } from "../interfaces/IAirSensorSignal";
+import { AqiQuery, IAirSensorSignal } from "../interfaces/IAirSensorSignal";
 import { IMapSector } from "../interfaces/IMapSector";
 
-const QUERY_KEY = "air-quality";
 
 const fetchData = async (sectorId?: number): Promise<IAirSensorSignal[]> => {
   const { data } = await apiClient.aqi.findAll(sectorId);
@@ -12,7 +11,7 @@ const fetchData = async (sectorId?: number): Promise<IAirSensorSignal[]> => {
 
 export const useFetchAirData = (sectorId?: number) => {
   const queryResult = useQuery(
-    [QUERY_KEY, sectorId],
+    ["air-quality", sectorId],
     () => fetchData(sectorId),
     {
       enabled: !!sectorId,
@@ -21,12 +20,15 @@ export const useFetchAirData = (sectorId?: number) => {
   return queryResult;
 };
 
-const fetchSectors = async (): Promise<IMapSector[]> => {
-  const { data } = await apiClient.aqi.getSectors();
+const fetchSectors = async (query?: AqiQuery): Promise<IMapSector[]> => {
+  const { data } = await apiClient.aqi.getSectors(query);
   return data;
 };
 
-export const useFetchSectors = () => {
-  const queryResult = useQuery("sectors", fetchSectors);
+export const useFetchSectors = (query?: AqiQuery) => {
+  const queryResult = useQuery(
+    ["sectors", query],
+    () => fetchSectors(query)
+  );
   return queryResult;
 };
