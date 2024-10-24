@@ -1,11 +1,9 @@
 import React from 'react';
-import Header from '../../components/ui/header'
+import Header from '../../layout/header'
 import CustomMap from './component/custom-map'
-import { useFetchSectors } from '../../services/air-sensor';
+import SummaryBox from './component/summary-box';
 
 const AppLayout = () => {
-  const { data } = useFetchSectors();
-
   React.useEffect(() => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
@@ -26,9 +24,10 @@ const AppLayout = () => {
   }, []);
 
   return (
-    <div className={"container flex flex-col"}>
+    <div className={"container flex flex-col gap-4"}>
       <Header />
-      <CustomMap sectors={data} />
+      <SummaryBox />
+      <CustomMap />
     </div>
   )
 }
