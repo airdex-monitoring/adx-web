@@ -5,6 +5,7 @@ import { handleQualityColor } from '../../../common/color';
 import MapFilter from './map-filter';
 import { Wrapper } from '../../../layout/wrapper';
 import { useCustomMap } from '../hooks/useCustomMap';
+import { useEffect, useState } from 'react';
 
 
 const CustomMap = () => {
@@ -15,10 +16,13 @@ const CustomMap = () => {
         handlers
     } = useCustomMap({});
 
+    const [circles, setCircles] = useState<google.maps.Circle[]>([]);
+
+
     return (
         <div className="w-full flex flex-col gap-[10px]" >
             <h3>Карта</h3>
-            <MapFilter />
+            <MapFilter handlerMapFilter={handlers.handleMapFilter} />
             <div className="flex justify-between items-center">
                 <p className='font-sans italic text-sm leading-[15px] tracking-[-0.25px] text-[#868686]'>Последнее обновление: {map.secondsSinceLastUpdate && map.secondsSinceLastUpdate + " секунды назад"}</p>
             </div>
@@ -32,7 +36,7 @@ const CustomMap = () => {
                         renderingType={'VECTOR'}
                         onCameraChanged={handlers.handleCameraChange}
                     >
-                        {sensor.sensors && sensor.sensors?.map((sensor, index) => (
+                        {sensor.sensors && !sensor.isLoadingSensors && sensor.sensors?.map((sensor, index) => (
                             <Circle
                                 radius={30}
                                 center={{

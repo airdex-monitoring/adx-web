@@ -1,5 +1,5 @@
 import React from "react";
-import { useFetchAirData, useFetchSectors } from "../../../services/air-sensor";
+import { useFetchAirData, useFetchAqiAvg, useFetchSectors } from "../../../services/air-sensor";
 import {
 	MapCameraChangedEvent,
 	MapCameraProps,
@@ -27,6 +27,7 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 	const [cameraProps, setCameraProps] =
 		React.useState<MapCameraProps>(INITIAL_CAMERA);
 	const infoWindowRef = React.useRef<google.maps.InfoWindow | null>(null);
+	const dataLayerRef = React.useRef<google.maps.Data | null>(null);
 
 	const [infowindowOpen, setInfowindowOpen] = React.useState(false);
 	const [selectedSensor, setSelectedSensor] = React.useState<
@@ -50,7 +51,13 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 		isLoading: isLoadingSensors,
 		error: sensorError,
 		refetch: refetchSensors,
-	} = useFetchAirData(selectedSector ? Number(selectedSector.id) : undefined);
+	} = useFetchAirData(selectedSector ? Number(selectedSector.id) : undefined, query);
+
+	const {
+		data: aqiAvg,
+		isLoading: isLoadingAqiAvg,
+		error: aqiAvgError,
+	} = useFetchAqiAvg(query);
 
 	React.useEffect(() => {
 		if (!isFilter) {
@@ -74,82 +81,84 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 	}, [isFilter, refectSectors, refetchSensors, selectedSector]);
 
 	React.useEffect(() => {
-		if (!isFilter) {
-			if (!coreLib || !map || !Array.isArray(sectors)) return;
+		if (!coreLib || !map || isFilter) return;
 
-			const dataLayer = new window.google.maps.Data(); // Initialize the Data Layer
-
-			const geoJsonPolygons = {
-				type: "FeatureCollection",
-				features: sectors.map((polygon) => {
-					const points = polygon.points.map((point) => [point.lon, point.lat]); // Reverse to [lng, lat]
-
-					// Ensure the polygon is closed
-					if (
-						points[0][0] !== points[points.length - 1][0] ||
-						points[0][1] !== points[points.length - 1][1]
-					) {
-						points.push(points[0]);
-					}
-
-					return {
-						type: "Feature",
-						geometry: {
-							type: "Polygon",
-							coordinates: [points],
-						},
-						properties: {
-							...polygon,
-						},
-					};
-				}),
-			};
-
-			dataLayer.addGeoJson(geoJsonPolygons);
-
-			// Set styles for the polygons
-			dataLayer.setStyle((feature: any) => {
-				return {
-					fillColor: handleQualityColor(feature.getProperty("aqiLevel")),
-					strokeWeight: 1,
-					strokeOpacity: 0.8,
-					strokeColor: "#000000",
-				};
-			});
-
-			// Add click event listener to fetch data by polygon ID
-			dataLayer.addListener("click", (event: any) => {
-				handleClickSector(
-					{
-						id: event.feature.getProperty("id"),
-						points: event.feature
-							.getGeometry()
-							.getAt(0)
-							.getArray()
-							.map((point: any) => ({
-								lat: point.lat(),
-								lon: point.lng(),
-							})),
-						aqiAvg: event.feature.getProperty("aqiAvg"),
-						aqiLevel: event.feature.getProperty("aqiLevel"),
-						pm_1_0_avg: event.feature.getProperty("pm_1_0_avg"),
-						pm_2_5_avg: event.feature.getProperty("pm_2_5_avg"),
-						pm_10_avg: event.feature.getProperty("pm_10_avg"),
-						createDate: event.feature.getProperty("createDate") + 5,
-					},
-					event.latLng
-				);
-			});
-
-			dataLayer.setMap(map);
-
-			return () => {
-				dataLayer.setMap(null);
-			};
+		// Clear the existing data layer
+		if (dataLayerRef.current) {
+			dataLayerRef.current.setMap(null);
+			dataLayerRef.current = null;
 		}
 
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [coreLib, map, sectors, selectedSector]);
+		// If sectors array is empty, do not add new data layer
+		if (!Array.isArray(sectors) || sectors.length === 0) return;
+
+		const dataLayer = new window.google.maps.Data(); // Initialize the Data Layer
+		dataLayerRef.current = dataLayer; // Update the ref to the new data layer
+
+		const geoJsonPolygons = {
+			type: "FeatureCollection",
+			features: sectors.map((polygon) => {
+				const points = polygon.points.map((point) => [point.lon, point.lat]); // Reverse to [lng, lat]
+
+				// Ensure the polygon is closed
+				if (points[0][0] !== points[points.length - 1][0] || points[0][1] !== points[points.length - 1][1]) {
+					points.push(points[0]);
+				}
+
+				return {
+					type: "Feature",
+					geometry: {
+						type: "Polygon",
+						coordinates: [points],
+					},
+					properties: {
+						...polygon,
+					},
+				};
+			}),
+		};
+
+		dataLayer.addGeoJson(geoJsonPolygons);
+
+		dataLayer.setStyle((feature: any) => {
+			return {
+				fillColor: handleQualityColor(feature.getProperty('aqiLevel')),
+				strokeWeight: 1,
+				strokeOpacity: 0.8,
+				strokeColor: '#000000',
+			};
+		});
+
+		dataLayer.addListener('click', (event: any) => {
+			handleClickSector(
+				{
+					id: event.feature.getProperty('id'),
+					points: event.feature.getGeometry().getAt(0).getArray().map((point: any) => ({
+						lat: point.lat(),
+						lon: point.lng(),
+					})),
+					aqiAvg: event.feature.getProperty('aqiAvg'),
+					aqiLevel: event.feature.getProperty('aqiLevel'),
+					pm_1_0_avg: event.feature.getProperty('pm_1_0_avg'),
+					pm_2_5_avg: event.feature.getProperty('pm_2_5_avg'),
+					pm_10_avg: event.feature.getProperty('pm_10_avg'),
+					createDate: event.feature.getProperty('createDate'),
+				},
+				event.latLng
+			);
+		});
+
+		dataLayer.setMap(map);
+
+		return () => {
+			if (dataLayerRef.current) {
+				dataLayerRef.current.setMap(null);
+				dataLayerRef.current = null;
+			}
+		};
+	}, [coreLib, map, sectors, isFilter]);
+	
+
 
 	const handleCameraChange = React.useCallback(
 		(ev: MapCameraChangedEvent) => setCameraProps(ev.detail),
@@ -166,9 +175,7 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 		headerContent.className = "text-center text-black";
 		headerContent.style.backgroundColor = handleQualityColor(sector.aqiLevel);
 		headerContent.innerHTML = `
-            <p class="text-lg font-bold">${Number(sector.aqiAvg).toFixed(
-							1
-						)} / 300</p>
+            <p class="text-lg font-bold">${Number(sector.aqiAvg).toFixed(1)} / 300</p>
             <p class="text-sm font-light">${sector.aqiLevel}</p>
         `;
 
@@ -179,25 +186,19 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
                     <td class="p-2" colspan="2">
                         <p class="text-left text-md font-bold">PM 1.0</p>
                     </td>
-                    <td class="text-left font-light">${sector.pm_1_0_avg.toFixed(
-											1
-										)}</td>
+                    <td class="text-left font-light">${sector.pm_1_0_avg.toFixed(1)}</td>
                 </tr>
                 <tr>
                     <td class="p-2" colspan="2">
                         <p class="text-left text-md font-bold">PM 2.5</p>
                     </td>
-                    <td class="text-left font-light">${sector.pm_2_5_avg.toFixed(
-											1
-										)}</td>
+                    <td class="text-left font-light">${sector.pm_2_5_avg.toFixed(1)}</td>
                 </tr>
                 <tr>
                     <td class="p-2" colspan="2">
                         <p class="text-left text-md font-bold">PM 10</p>
                     </td>
-                    <td class="text-left font-light">${sector.pm_10_avg.toFixed(
-											1
-										)}</td>
+                    <td class="text-left font-light">${sector.pm_10_avg.toFixed(1)}</td>
                 </tr>
             </tbody>
         `;
@@ -234,6 +235,19 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 
 	const handleMapFilter = (query: AqiQuery) => {
 		setQuery(query);
+		if (dataLayerRef.current) {
+			dataLayerRef.current.forEach((feature) => {
+				dataLayerRef.current?.remove(feature);
+			});
+		}
+		if (dataLayerRef.current) {
+			dataLayerRef.current.setMap(null);
+			dataLayerRef.current = null;
+		}
+
+		if (infoWindowRef.current) {
+			infoWindowRef.current.close();
+		}
 	};
 
 	const getCurrentPosition = () => {
@@ -255,6 +269,7 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 	return {
 		map: {
 			isMapLoaded,
+			map,
 			cameraProps,
 			infowindowOpen,
 			currentPosition,
@@ -272,11 +287,17 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 			sectorError,
 			selectedSector,
 		},
+		aqiAvg: {
+			isLoadingAqiAvg,
+			aqiAvg,
+			aqiAvgError
+		},
 		handlers: {
 			handleCameraChange,
 			handleCircleClick,
 			handleClose,
 			handleMapFilter,
+			handleClickSector
 		},
 	};
 };

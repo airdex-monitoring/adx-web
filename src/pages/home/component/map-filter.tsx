@@ -1,5 +1,6 @@
 import React from 'react'
-import { useCustomMap } from '../hooks/useCustomMap';
+import { AqiQuery } from '../../../interfaces/IAirSensorSignal';
+import { format } from 'date-fns';
 
 interface IMapFilterProps {
     title: string;
@@ -21,7 +22,7 @@ const filters = [
         value: 'today',
         filter: {
             from: new Date(new Date().setHours(0, 0, 0, 0)),
-            to: new Date(),
+            to: new Date(new Date().setHours(0, 0, 0, 0)),
         }
     },
     {
@@ -58,18 +59,19 @@ const filters = [
     }
 ];
 
-const MapFilter = () => {
+interface IMapProps {
+    handlerMapFilter: (query: AqiQuery) => void;
+}
+
+const MapFilter = ({ handlerMapFilter }: IMapProps) => {
     const [selectedFilter, setSelectedFilter] = React.useState<string | null>('all');
-    const { handlers } = useCustomMap({
-        isFilter: true
-    });
 
     const handleFilterClick = (filter: string, from: Date, to: Date) => {
         setSelectedFilter(filter);
-        handlers.handleMapFilter({
-            startDate: from,
-            endDate: to,
-        })
+        handlerMapFilter({
+            startDate: format(from, 'dd-MM-yyyy'),
+            endDate: format(to, 'dd-MM-yyyy'),
+        });
     };
 
     const MapFilterItem = ({ title, isSelected, onClick }: IMapFilterProps) => {

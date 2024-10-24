@@ -1,13 +1,10 @@
 export interface IAirSensorSignal {
   id: number;
   createDate: Date;
-
   point: LanLngPointDto;
-
   pm_1_0: number;
   pm_2_5: number;
   pm_10: number;
-
   aqi: number;
   aqiLevel: AqiLevel;
 }
@@ -26,8 +23,8 @@ export interface IAirSensorSignalAcceptRequest {
 }
 
 export interface AqiQuery {
-  startDate: Date;
-  endDate: Date;
+  startDate: string;
+  endDate: string;
 }
 
 export enum AqiLevel {
@@ -37,4 +34,27 @@ export enum AqiLevel {
   "UNHEALTHY" = "UNHEALTHY",
   "VERY_UNHEALTHY" = "VERY_UNHEALTHY",
   "HAZARDOUS" = "HAZARDOUS",
+}
+
+export interface IAqiEntryAvg {
+  aqiAvg?: number;
+  aqiAvgLevel?: AqiLevel;
+
+  aqiMin?: number;
+  aqiMinLevel?: AqiLevel;
+
+  aqiMax?: number;
+  aqiMaxLevel?: AqiLevel;
+
+  pm_1_0_min?: number;
+  pm_1_0_max?: number;
+  pm_1_0_avg?: number;
+
+  pm_2_5_min?: number;
+  pm_2_5_max?: number;
+  pm_2_5_avg?: number;
+
+  pm_10_min?: number;
+  pm_10_max?: number;
+  pm_10_avg?: number;
 }
