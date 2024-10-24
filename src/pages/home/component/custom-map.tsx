@@ -26,7 +26,7 @@ const CustomMap = () => {
             <div className="flex justify-between items-center">
                 <p className='font-sans italic text-sm leading-[15px] tracking-[-0.25px] text-[#868686]'>Последнее обновление: {map.secondsSinceLastUpdate && map.secondsSinceLastUpdate + " секунды назад"}</p>
             </div>
-            <Wrapper error={!!sector.sectorError || !!sensor.sensorError} errorHeight={'800px'} isLoading={map.isMapLoaded && !sector.isLoadingSectors}>
+            <Wrapper error={!!sector.sectorError || !!sensor.sensorError} errorHeight={800} isLoading={map.isMapLoaded && !sector.isLoadingSectors}>
                 <div className='w-full overflow-hidden rounded-[15px]' style={{ height: window.innerHeight * 0.8 }}>
                     <Map
                         style={{ width: '100%', height: '100%' }}

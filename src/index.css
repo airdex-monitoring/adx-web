@@ -52,13 +52,19 @@
     @apply text-[15px] leading-[15px] font-semibold text-black tracking-[-0.25px];
   }
 
-  .tooltip {
-    @apply invisible absolute;
+
+  .tooltip-arrow {
+    position: absolute;
+    bottom: -5px;
+    left: 50%;
+    margin-left: -5px;
+    width: 0;
+    height: 0;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 5px solid #2643FF;
   }
 
-  .has-tooltip:hover .tooltip {
-    @apply visible z-50;
-  }
 }
 
 @layer utilities {}

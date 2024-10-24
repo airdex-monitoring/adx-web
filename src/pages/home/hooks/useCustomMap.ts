@@ -157,7 +157,7 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 			}
 		};
 	}, [coreLib, map, sectors, isFilter]);
-	
+
 
 
 	const handleCameraChange = React.useCallback(
@@ -248,6 +248,8 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 		if (infoWindowRef.current) {
 			infoWindowRef.current.close();
 		}
+
+		setSelectedSector(undefined);
 	};
 
 	const getCurrentPosition = () => {

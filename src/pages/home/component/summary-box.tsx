@@ -23,13 +23,13 @@ const SummaryBox = () => {
         const handleType = (type: string) => {
             switch (type) {
                 case 'aqi':
-                    return 'AQI';
+                    return 'AQI (Индекс качества воздуха) - это мера, используемая для информирования о текущем уровне загрязнения воздуха или прогнозируемом уровне загрязнения.';
                 case 'pm_1':
-                    return 'µg/m³';
+                    return 'PM 1.0 относится к твердым частицам диаметром менее 1 микрометра. Эти частицы могут проникать глубоко в легкие.';
                 case 'pm_2_5':
-                    return 'µg/m³';
+                    return 'PM 2.5 относится к твердым частицам диаметром менее 2.5 микрометров. Эти частицы могут проникать в дыхательную систему и влиять на здоровье.';
                 case 'pm_10':
-                    return 'µg/m³';
+                    return 'PM 10 относится к твердым частицам диаметром менее 10 микрометров. Эти частицы могут вызывать респираторные проблемы.';
                 default:
                     return '';
             }
@@ -49,8 +49,9 @@ const SummaryBox = () => {
                     <p className='font-sans font-normal text-[13px] leading-[15px] tracking-[-0.25px]'>{desc}</p>
                 </div>
                 {hover &&
-                    (<span className='absolute bottom-full rounded shadow-lg p-1 bg-gray-100 text-red-500 -mt-24'>
+                    (<span className='absolute bottom-full rounded shadow-lg p-2 mb-2 bg-[#2643FF] text-white'>
                         {handleType(type)}
+                        <span className='tooltip-arrow'></span>
                     </span>)
                 }
             </div>
@@ -60,7 +61,7 @@ const SummaryBox = () => {
     return !data.isLoadingAqiAvg ? (
         <div className='w-full flex flex-col gap-[10px]'>
             <h3>Сводка за сегодня</h3>
-            <Wrapper error={!!data.aqiAvgError} errorHeight={'120px'} isLoading={!data.isLoadingAqiAvg}>
+            <Wrapper error={!!data.aqiAvgError} errorHeight={120} isLoading={!data.isLoadingAqiAvg}>
                 {data.aqiAvg &&
                     <div className='w-full flex flex-row gap-[10px] flex-auto flex-wrap'>
                         <SummaryCard
