@@ -5,7 +5,6 @@ import { handleQualityColor } from '../../../common/color';
 import MapFilter from './map-filter';
 import { Wrapper } from '../../../layout/wrapper';
 import { useCustomMap } from '../hooks/useCustomMap';
-import { useEffect, useState } from 'react';
 
 
 const CustomMap = () => {
@@ -15,9 +14,6 @@ const CustomMap = () => {
         sensor,
         handlers
     } = useCustomMap({});
-
-    const [circles, setCircles] = useState<google.maps.Circle[]>([]);
-
 
     return (
         <div className="w-full flex flex-col gap-[10px]" >
