@@ -1,5 +1,9 @@
 import React from "react";
-import { useFetchAirData, useFetchAqiAvg, useFetchSectors } from "../../../services/air-sensor";
+import {
+	useFetchAirData,
+	useFetchAqiAvg,
+	useFetchSectors,
+} from "../../../services/air-sensor";
 import {
 	MapCameraChangedEvent,
 	MapCameraProps,
@@ -51,7 +55,10 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 		isLoading: isLoadingSensors,
 		error: sensorError,
 		refetch: refetchSensors,
-	} = useFetchAirData(selectedSector ? Number(selectedSector.id) : undefined, query);
+	} = useFetchAirData(
+		selectedSector ? Number(selectedSector.id) : undefined,
+		query
+	);
 
 	const {
 		data: aqiAvg,
@@ -101,7 +108,10 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 				const points = polygon.points.map((point) => [point.lon, point.lat]); // Reverse to [lng, lat]
 
 				// Ensure the polygon is closed
-				if (points[0][0] !== points[points.length - 1][0] || points[0][1] !== points[points.length - 1][1]) {
+				if (
+					points[0][0] !== points[points.length - 1][0] ||
+					points[0][1] !== points[points.length - 1][1]
+				) {
 					points.push(points[0]);
 				}
 
@@ -122,27 +132,31 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 
 		dataLayer.setStyle((feature: any) => {
 			return {
-				fillColor: handleQualityColor(feature.getProperty('aqiLevel')),
+				fillColor: handleQualityColor(feature.getProperty("aqiLevel")),
 				strokeWeight: 1,
 				strokeOpacity: 0.8,
-				strokeColor: '#000000',
+				strokeColor: "#000000",
 			};
 		});
 
-		dataLayer.addListener('click', (event: any) => {
+		dataLayer.addListener("click", (event: any) => {
 			handleClickSector(
 				{
-					id: event.feature.getProperty('id'),
-					points: event.feature.getGeometry().getAt(0).getArray().map((point: any) => ({
-						lat: point.lat(),
-						lon: point.lng(),
-					})),
-					aqiAvg: event.feature.getProperty('aqiAvg'),
-					aqiLevel: event.feature.getProperty('aqiLevel'),
-					pm_1_0_avg: event.feature.getProperty('pm_1_0_avg'),
-					pm_2_5_avg: event.feature.getProperty('pm_2_5_avg'),
-					pm_10_avg: event.feature.getProperty('pm_10_avg'),
-					createDate: event.feature.getProperty('createDate'),
+					id: event.feature.getProperty("id"),
+					points: event.feature
+						.getGeometry()
+						.getAt(0)
+						.getArray()
+						.map((point: any) => ({
+							lat: point.lat(),
+							lon: point.lng(),
+						})),
+					aqiAvg: event.feature.getProperty("aqiAvg"),
+					aqiLevel: event.feature.getProperty("aqiLevel"),
+					pm_1_0_avg: event.feature.getProperty("pm_1_0_avg"),
+					pm_2_5_avg: event.feature.getProperty("pm_2_5_avg"),
+					pm_10_avg: event.feature.getProperty("pm_10_avg"),
+					createDate: event.feature.getProperty("createDate"),
 				},
 				event.latLng
 			);
@@ -156,9 +170,9 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 				dataLayerRef.current = null;
 			}
 		};
+
+		//eslint-disable-next-line
 	}, [coreLib, map, sectors, isFilter]);
-
-
 
 	const handleCameraChange = React.useCallback(
 		(ev: MapCameraChangedEvent) => setCameraProps(ev.detail),
@@ -175,7 +189,9 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 		headerContent.className = "text-center text-black";
 		headerContent.style.backgroundColor = handleQualityColor(sector.aqiLevel);
 		headerContent.innerHTML = `
-            <p class="text-lg font-bold">${Number(sector.aqiAvg).toFixed(1)} / 300</p>
+            <p class="text-lg font-bold">${Number(sector.aqiAvg).toFixed(
+							1
+						)} / 300</p>
             <p class="text-sm font-light">${sector.aqiLevel}</p>
         `;
 
@@ -186,19 +202,25 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
                     <td class="p-2" colspan="2">
                         <p class="text-left text-md font-bold">PM 1.0</p>
                     </td>
-                    <td class="text-left font-light">${sector.pm_1_0_avg.toFixed(1)}</td>
+                    <td class="text-left font-light">${sector.pm_1_0_avg.toFixed(
+											1
+										)}</td>
                 </tr>
                 <tr>
                     <td class="p-2" colspan="2">
                         <p class="text-left text-md font-bold">PM 2.5</p>
                     </td>
-                    <td class="text-left font-light">${sector.pm_2_5_avg.toFixed(1)}</td>
+                    <td class="text-left font-light">${sector.pm_2_5_avg.toFixed(
+											1
+										)}</td>
                 </tr>
                 <tr>
                     <td class="p-2" colspan="2">
                         <p class="text-left text-md font-bold">PM 10</p>
                     </td>
-                    <td class="text-left font-light">${sector.pm_10_avg.toFixed(1)}</td>
+                    <td class="text-left font-light">${sector.pm_10_avg.toFixed(
+											1
+										)}</td>
                 </tr>
             </tbody>
         `;
@@ -292,14 +314,14 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 		aqiAvg: {
 			isLoadingAqiAvg,
 			aqiAvg,
-			aqiAvgError
+			aqiAvgError,
 		},
 		handlers: {
 			handleCameraChange,
 			handleCircleClick,
 			handleClose,
 			handleMapFilter,
-			handleClickSector
+			handleClickSector,
 		},
 	};
 };
