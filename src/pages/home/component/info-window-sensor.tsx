@@ -1,9 +1,9 @@
 import React from 'react'
 import { IAirSensorSignal } from '../../../interfaces/IAirSensorSignal';
-import { handleQualityColor } from '../../../common/mapUtils';
 import { InfoWindow } from '@vis.gl/react-google-maps';
 import { formatInTimeZone } from 'date-fns-tz'
 import { CONSTANTS } from '../../../common/constants';
+import { handleQualityColor } from '../../../common/color';
 
 interface InfoWindowSensorProps {
     sensor: IAirSensorSignal;
@@ -19,7 +19,7 @@ const InfoWindowSensor: React.FC<InfoWindowSensorProps> = ({ sensor, onClose }) 
             }}
             shouldFocus={false}
             headerContent={
-                <div className="text-center text-white"
+                <div className="text-center text-black"
                     style={{
                         backgroundColor: handleQualityColor(sensor.aqiLevel),
                     }}
