@@ -18,6 +18,7 @@ import {
 } from "../../../interfaces/IAirSensorSignal";
 import { IMapSector } from "../../../interfaces/IMapSector";
 import { handleQualityColor } from "../../../common/color";
+import { format } from "date-fns";
 
 interface ICustomMap {
 	isFilter?: boolean;
@@ -40,7 +41,6 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 	const [selectedSector, setSelectedSector] = React.useState<
 		IMapSector | undefined
 	>(undefined);
-	const [secondsSinceLastUpdate, setSecondsSinceLastUpdate] = React.useState(0);
 	const [query, setQuery] = React.useState<AqiQuery | undefined>(undefined);
 
 	const {
@@ -64,28 +64,16 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 		data: aqiAvg,
 		isLoading: isLoadingAqiAvg,
 		error: aqiAvgError,
-	} = useFetchAqiAvg(query);
-
-	React.useEffect(() => {
-		if (!isFilter) {
-			const interval = setInterval(() => {
-				refectSectors();
-				if (selectedSector) {
-					refetchSensors();
-				}
-				setSecondsSinceLastUpdate(0);
-			}, 60000);
-
-			const timer = setInterval(() => {
-				setSecondsSinceLastUpdate((prev) => prev + 1);
-			}, 1000);
-
-			return () => {
-				clearInterval(interval);
-				clearInterval(timer);
-			};
-		}
-	}, [isFilter, refectSectors, refetchSensors, selectedSector]);
+	} = useFetchAqiAvg({
+		startDate: format(
+			new Date(new Date().setHours(0, 0, 0, 0)),
+			"dd-MM-yyyy HH:mm"
+		),
+		endDate: format(
+			new Date(new Date().setHours(23, 59, 59, 0)),
+			"dd-MM-yyyy HH:mm"
+		),
+	});
 
 	React.useEffect(() => {
 		if (!coreLib || !map || isFilter) return;
@@ -297,19 +285,20 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 			cameraProps,
 			infowindowOpen,
 			currentPosition,
-			secondsSinceLastUpdate,
 		},
 		sensor: {
 			isLoadingSensors,
 			sensors,
 			sensorError,
 			selectedSensor,
+			refetchSensors,
 		},
 		sector: {
 			isLoadingSectors,
 			sectors,
 			sectorError,
 			selectedSector,
+			refectSectors,
 		},
 		aqiAvg: {
 			isLoadingAqiAvg,
