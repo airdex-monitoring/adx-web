@@ -7,7 +7,9 @@ const Header: React.FC = () => {
                 <img className={"max-h-8"} src="/icons/logo.svg" alt="logo" />
                 <h1>Airdex Monitoring</h1>
             </div>
-            <h2 className='header-info cursor-pointer'>Информация</h2>
+            <h2 className='header-info cursor-pointer'>
+                <a href={'https://github.com/airdex-monitoring?view_as=public'} target={'_blank'} rel="noreferrer">Информация</a>
+            </h2>
         </div>
     )
 }

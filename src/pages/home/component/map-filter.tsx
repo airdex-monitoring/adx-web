@@ -22,15 +22,15 @@ const filters = [
         value: 'today',
         filter: {
             from: new Date(new Date().setHours(0, 0, 0, 0)),
-            to: new Date(new Date().setHours(0, 0, 0, 0)),
+            to: new Date(new Date().setHours(23, 59, 59, 0)),
         }
     },
     {
         title: 'за вчера',
         value: 'yesterday',
         filter: {
-            from: new Date(new Date().setDate(new Date().getDate() - 1)),
-            to: new Date(new Date()),
+            from: new Date(new Date(new Date().setDate(new Date().getDate() - 1)).setHours(0, 0, 0, 0)),
+            to: new Date(new Date(new Date().setDate(new Date().getDate() - 1)).setHours(23, 59, 59, 0)),
         }
     },
     {
@@ -69,8 +69,8 @@ const MapFilter = ({ handlerMapFilter }: IMapProps) => {
     const handleFilterClick = (filter: string, from: Date, to: Date) => {
         setSelectedFilter(filter);
         handlerMapFilter({
-            startDate: format(from, 'dd-MM-yyyy'),
-            endDate: format(to, 'dd-MM-yyyy'),
+            startDate: format(from, 'dd-MM-yyyy HH:mm'),
+            endDate: format(to, 'dd-MM-yyyy HH:mm'),
         });
     };
 

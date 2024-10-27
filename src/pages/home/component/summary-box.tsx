@@ -40,7 +40,7 @@ const SummaryBox = () => {
                 <div
                     className={`flex flex-col gap-[10px] p-[10px] rounded-xl cursor-pointer`}
                     style={{
-                        background: aqiLevel && handleQualityColor(aqiLevel)
+                        background: aqiLevel ? handleQualityColor(aqiLevel) : "#E3E3E3"
                     }}
                     onMouseEnter={() => setHover(true)}
                     onMouseLeave={() => setHover(false)}

@@ -5,6 +5,7 @@ import { handleQualityColor } from '../../../common/color';
 import MapFilter from './map-filter';
 import { Wrapper } from '../../../layout/wrapper';
 import { useCustomMap } from '../hooks/useCustomMap';
+import { useEffect, useState } from 'react';
 
 
 const CustomMap = () => {
@@ -15,12 +16,34 @@ const CustomMap = () => {
         handlers
     } = useCustomMap({});
 
+    const [secondsSinceLastUpdate, setSecondsSinceLastUpdate] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            sector.refectSectors();
+            if (sector.selectedSector) {
+                sensor.refetchSensors();
+            }
+            setSecondsSinceLastUpdate(0);
+        }, 60000);
+
+        const timer = setInterval(() => {
+            setSecondsSinceLastUpdate((prev) => prev + 1);
+        }, 1000);
+
+        return () => {
+            clearInterval(interval);
+            clearInterval(timer);
+        };
+    }, [sector, sensor, sector.refectSectors, sensor.refetchSensors, sector.selectedSector]);
+
+
     return (
         <div className="w-full flex flex-col gap-[10px]" >
             <h3>Карта</h3>
             <MapFilter handlerMapFilter={handlers.handleMapFilter} />
             <div className="flex justify-between items-center">
-                <p className='font-sans italic text-sm leading-[15px] tracking-[-0.25px] text-[#868686]'>Последнее обновление: {map.secondsSinceLastUpdate && map.secondsSinceLastUpdate + " секунды назад"}</p>
+                <p className='font-sans italic text-sm leading-[15px] tracking-[-0.25px] text-[#868686]'>Последнее обновление: {secondsSinceLastUpdate && secondsSinceLastUpdate + " секунды назад"}</p>
             </div>
             <Wrapper error={!!sector.sectorError || !!sensor.sensorError} errorHeight={800} isLoading={map.isMapLoaded && !sector.isLoadingSectors}>
                 <div className='w-full overflow-hidden rounded-[15px]' style={{ height: window.innerHeight * 0.8 }}>
