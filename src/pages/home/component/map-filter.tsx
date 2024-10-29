@@ -66,12 +66,15 @@ interface IMapProps {
 const MapFilter = ({ handlerMapFilter }: IMapProps) => {
     const [selectedFilter, setSelectedFilter] = React.useState<string | null>('all');
 
-    const handleFilterClick = (filter: string, from: Date, to: Date) => {
+    const handleFilterClick = (filter: string, from: Date, to: Date, isSelected: boolean) => {
         setSelectedFilter(filter);
-        handlerMapFilter({
-            startDate: format(from, 'dd-MM-yyyy HH:mm'),
-            endDate: format(to, 'dd-MM-yyyy HH:mm'),
-        });
+        
+        if (!isSelected) {
+            handlerMapFilter({
+                startDate: format(from, 'dd-MM-yyyy HH:mm'),
+                endDate: format(to, 'dd-MM-yyyy HH:mm'),
+            });
+        }
     };
 
     const MapFilterItem = ({ title, isSelected, onClick }: IMapFilterProps) => {
@@ -98,7 +101,7 @@ const MapFilter = ({ handlerMapFilter }: IMapProps) => {
                 <MapFilterItem
                     title={filter.title}
                     isSelected={selectedFilter === filter.value}
-                    onClick={() => handleFilterClick(filter.value, filter.filter.from, filter.filter.to)}
+                    onClick={() => handleFilterClick(filter.value, filter.filter.from, filter.filter.to, selectedFilter === filter.value)}
                     key={index}
                 />
             ))}

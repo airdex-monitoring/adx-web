@@ -13,7 +13,7 @@ const Wrapper = ({ error, errorHeight, isLoading, children }: WrapperProps) => {
         return <Error height={errorHeight} />
     }
 
-    if (!isLoading) {
+    if (isLoading) {
         return <Spinner height={String(errorHeight)} />
     }
 
