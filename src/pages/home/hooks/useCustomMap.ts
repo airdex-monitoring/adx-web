@@ -35,12 +35,8 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 	const dataLayerRef = React.useRef<google.maps.Data | null>(null);
 
 	const [infowindowOpen, setInfowindowOpen] = React.useState(false);
-	const [selectedSensor, setSelectedSensor] = React.useState<
-		IAirSensorSignal | undefined
-	>(undefined);
-	const [selectedSector, setSelectedSector] = React.useState<
-		IMapSector | undefined
-	>(undefined);
+	const [selectedSensor, setSelectedSensor] = React.useState<IAirSensorSignal | undefined>(undefined);
+	const [selectedSector, setSelectedSector] = React.useState<IMapSector | undefined>(undefined);
 	const [query, setQuery] = React.useState<AqiQuery | undefined>(undefined);
 
 	const {
@@ -172,14 +168,18 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 		position: google.maps.LatLng
 	) => {
 		setSelectedSector(sector);
+		renderSectorInfo(sector, position);
+	};
 
+	const renderSectorInfo = (
+		sector: IMapSector,
+		position: google.maps.LatLng
+	) => {
 		const headerContent = document.createElement("div");
 		headerContent.className = "text-center text-black";
 		headerContent.style.backgroundColor = handleQualityColor(sector.aqiLevel);
 		headerContent.innerHTML = `
-            <p class="text-lg font-bold">${Number(sector.aqiAvg).toFixed(
-							1
-						)} / 300</p>
+            <p class="text-lg font-bold">${Number(sector.aqiAvg).toFixed(1)} / 300</p>
             <p class="text-sm font-light">${sector.aqiLevel}</p>
         `;
 
@@ -190,25 +190,19 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
                     <td class="p-2" colspan="2">
                         <p class="text-left text-md font-bold">PM 1.0</p>
                     </td>
-                    <td class="text-left font-light">${sector.pm_1_0_avg.toFixed(
-											1
-										)}</td>
+                    <td class="text-left font-light">${sector.pm_1_0_avg.toFixed(1)}</td>
                 </tr>
                 <tr>
                     <td class="p-2" colspan="2">
                         <p class="text-left text-md font-bold">PM 2.5</p>
                     </td>
-                    <td class="text-left font-light">${sector.pm_2_5_avg.toFixed(
-											1
-										)}</td>
+                    <td class="text-left font-light">${sector.pm_2_5_avg.toFixed(1)}</td>
                 </tr>
                 <tr>
                     <td class="p-2" colspan="2">
                         <p class="text-left text-md font-bold">PM 10</p>
                     </td>
-                    <td class="text-left font-light">${sector.pm_10_avg.toFixed(
-											1
-										)}</td>
+                    <td class="text-left font-light">${sector.pm_10_avg.toFixed(1)}</td>
                 </tr>
             </tbody>
         `;
@@ -227,7 +221,7 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 		handleClose();
 		newInfoWindow.open(map);
 		infoWindowRef.current = newInfoWindow;
-	};
+	}
 
 	const handleCircleClick = (sensor: IAirSensorSignal) => {
 		setSelectedSensor(sensor);
@@ -261,6 +255,13 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 
 		setSelectedSector(undefined);
 	};
+
+	const handleRefetch = () => {
+		refectSectors();
+		if (selectedSector) {
+			refetchSensors();
+		}
+	}
 
 	const getCurrentPosition = () => {
 		try {
@@ -311,6 +312,7 @@ export const useCustomMap = ({ isFilter = false }: ICustomMap) => {
 			handleClose,
 			handleMapFilter,
 			handleClickSector,
+			handleRefetch,
 		},
 	};
 };

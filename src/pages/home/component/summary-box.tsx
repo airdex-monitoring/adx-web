@@ -61,7 +61,7 @@ const SummaryBox = () => {
     return !data.isLoadingAqiAvg ? (
         <div className='w-full flex flex-col gap-[10px]'>
             <h3>Сводка за сегодня</h3>
-            <Wrapper error={!!data.aqiAvgError} errorHeight={120} isLoading={!data.isLoadingAqiAvg}>
+            <Wrapper error={!!data.aqiAvgError} errorHeight={120} isLoading={data.isLoadingAqiAvg}>
                 {data.aqiAvg &&
                     <div className='w-full flex flex-row gap-[10px] flex-auto flex-wrap'>
                         <SummaryCard
